@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class NGDMP_3D_Squid : ModuleRules
+public class NGDMP : ModuleRules
 {
-	public NGDMP_3D_Squid(ReadOnlyTargetRules Target) : base(Target)
+	public NGDMP(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	

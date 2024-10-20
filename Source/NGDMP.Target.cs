@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class NGDMP_3D_SquidTarget : TargetRules
+public class NGDMPTarget : TargetRules
 {
-	public NGDMP_3D_SquidTarget(TargetInfo Target) : base(Target)
+	public NGDMPTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
-		ExtraModuleNames.Add("NGDMP_3D_Squid");
+		ExtraModuleNames.Add("NGDMP");
 	}
 }

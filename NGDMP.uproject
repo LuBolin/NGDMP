@@ -5,7 +5,7 @@
 	"Description": "",
 	"Modules": [
 		{
-			"Name": "NGDMP_3D_Squid",
+			"Name": "NGDMP",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
