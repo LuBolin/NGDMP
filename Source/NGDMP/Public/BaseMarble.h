@@ -15,21 +15,26 @@ public:
 	// Sets default values for this pawn's properties
 	ABaseMarble();
 
+	// function to return the plane it is on
+	UFUNCTION(BlueprintCallable)
+	FVector GetPlaneNormal();
+
+	// default mesh size
+	float Radius = 0.0f;
+
+	UPROPERTY()
+	UStaticMeshComponent* MarbleMesh = nullptr;
+	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-private:
-	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Marble")
 	bool bPossessed = false;
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Marble")
+	void Launch(FVector Direction, float Force);
 };

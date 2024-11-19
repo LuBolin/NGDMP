@@ -3,19 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseMarble.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/StateTreeComponent.h"
 #include "MasterPlayerController.generated.h"
 
 
-// UENUM(BlueprintType)
-// enum class EPlayerControllerState: uint8
-// {
-// 	Pcs_Free, // Not possessing a marble
-// 	Pcs_Possessing, // Has possessed a marble
-// 	Pcs_Launching, // Third person aiming marble
-// 	Pcs_Acting // First Person
-// };
+// signals for other actors to 'subscribe' to
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAim_Updated, ABaseMarble*, AimedMarble);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPossess_Updated, ABaseMarble*, PossessedMarble);
 
+
+
+// input events for states to 'subscribe' to in C++
+// basically broadcast the IA delegates
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Move, FVector3f, Input);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_MouseLook, FVector2f, Input);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Inspect, bool, Input);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_MainAction, bool, Input);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Escape, bool, Input);
 
 UCLASS()
 class NGDMP_API AMasterPlayerController : public APlayerController
@@ -24,46 +30,38 @@ class NGDMP_API AMasterPlayerController : public APlayerController
 
 public:
 	static AMasterPlayerController* Instance;
+
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
+	FAim_Updated FAim_Updated;
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
+	FPossess_Updated FPossess_Updated;
+
+
+	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	FIA_Move FIA_Move;
+	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	FIA_MouseLook FIA_MouseLook;
+	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	FIA_Inspect FIA_Inspect;
+	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	FIA_MainAction FIA_MainAction;
+	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	FIA_Escape FIA_Escape;
+
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "General")
+	UStateTreeComponent* StateTreeComponent = nullptr;
+
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Marble")
-	bool bFocusedOnMarble = false;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Possession")
+	APawn* SpectatePawn = nullptr;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Marble")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Possession")
 	class ABaseMarble* PossessedMarble = nullptr;
-
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Marble")
-	// EPlayerControllerState CurrentState = EPlayerControllerState::Pcs_Free;
-
+	
 protected:
 	virtual void BeginPlay() override;
-	
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	virtual void CameraMovement(FVector3f Input);
-	
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	virtual void ToggleFocusOnMarble();
 
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	virtual void CameraPan(FVector2f Input);
-
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	virtual void SetMarblePerspective(bool bFirstPerson);
-
-
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Camera")
-	float CameraSpeed = 1.0f;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Camera")
-	APawn* CameraPawn = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Camera")
-	bool FirstPerson = false;
-
-private:
-	float MinCamDist = 300.0f;
-	float MaxCamDist = 1000.0f;
-	float StoredCamDist = 0.0f;
 };
 
 
