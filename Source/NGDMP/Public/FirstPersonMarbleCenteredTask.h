@@ -5,29 +5,20 @@
 #include "CoreMinimal.h"
 #include "Blueprint/StateTreeTaskBlueprintBase.h"
 #include "MasterPlayerController.h"
-#include "BaseMarble.h"
-#include "StateTreeExecutionContext.h"
-#include "InspectTask.generated.h"
+#include "FirstPersonMarbleCenteredTask.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class NGDMP_API UInspectTask : public UStateTreeTaskBlueprintBase
+class NGDMP_API UFirstPersonMarbleCenteredTask : public UStateTreeTaskBlueprintBase
 {
 	GENERATED_BODY()
 
+public:
+	constexpr static float SetViewBlendDuration = 0.5f;
 	
 protected:
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	virtual void CameraMovement(FVector3f Input);
-
-	UFUNCTION(BlueprintCallable)
-	void UnInspect(bool bInspect);
-	
-	UFUNCTION(BlueprintCallable)
-	void SetAiming(bool bAim);
-
 
 	virtual EStateTreeRunStatus EnterState(
 		FStateTreeExecutionContext& Context,
@@ -37,26 +28,25 @@ protected:
 		FStateTreeExecutionContext& Context,
 		const FStateTreeTransitionResult& Transition) override;
 
+	
 	virtual EStateTreeRunStatus Tick(
 		FStateTreeExecutionContext& Context,
 		const float DeltaTime) override;
 	
 private:
 	UPROPERTY()
+	bool bAnimalHidden = false;
+	
+	UPROPERTY()
 	AMasterPlayerController* PlayerController = nullptr;
 
-	float YawSpeed = 1.0f;
-	float PitchSpeed = 1.0f;
-	float ZoomBaseSpeed = 5.0f;
-	float ZoomVariableSpeed = 0.75f;
-	float MinCamDist = 320.0f;
-	float MaxCamDist = 2000.0f;
-	float MinPitch = 0.0f;
-	float MaxPitch = 75.0f;
+	UFUNCTION()
+	void Ability1(bool bClicked);
 	
-	FVector CameraOffset = FVector::ZeroVector;
-	
-	bool Aiming = false;
-	FVector LaunchSource = FVector::ZeroVector;
+	UFUNCTION()
+	virtual void CameraPan(FVector2f Input);
 
+	UFUNCTION()
+	void ToThirdPersonMarbleCenteredTask(bool bPressed);
+	
 };

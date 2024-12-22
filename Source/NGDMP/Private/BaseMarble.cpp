@@ -4,27 +4,34 @@
 #include "BaseMarble.h"
 #include "Components/SphereComponent.h"
 
-// Sets default values
 ABaseMarble::ABaseMarble()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PhysicsMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Marble"));
+	RootComponent = PhysicsMesh;
+	AnimalMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnimalMesh"));
+	AnimalMesh->SetupAttachment(PhysicsMesh);
+	MarbleCollider = CreateDefaultSubobject<USphereComponent>(TEXT("MarbleCollider"));
+	MarbleCollider->SetupAttachment(PhysicsMesh);
+	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
+	CameraSpringArm->SetupAttachment(PhysicsMesh);
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	FirstPersonCamera->SetupAttachment(CameraSpringArm);
 }
 
 // Called when the game starts or when spawned
 void ABaseMarble::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Radius = GetComponentByClass<USphereComponent>()->GetUnscaledSphereRadius();
-
-	MarbleMesh = GetComponentByClass<UStaticMeshComponent>();
+	Radius = MarbleCollider->GetUnscaledSphereRadius();
 }
 
 // Called every frame
 void ABaseMarble::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!ReadyToLaunch and GetVelocity().Size() == 0.0f)
+		ReadyToLaunch = true;
 }
 
 
@@ -52,12 +59,24 @@ FVector ABaseMarble::GetPlaneNormal()
 	return PlaneNormal;
 }
 
-void ABaseMarble::Launch(FVector Direction, float Velocity)
+void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 {
 	// TODO: Consider using force instead of velocity
 	Direction.Normalize();
 	FVector LaunchVelocity = Direction * Velocity;
 	LaunchVelocity *= 1.0f;
-	MarbleMesh->SetPhysicsLinearVelocity(LaunchVelocity);
+	FRotator NewRotation = LaunchVelocity.Rotation();
+	SetActorRotation(NewRotation);
+	// set camera rotation separately, since camera
+	// does not inherit rotation (as intended) due to spring arm
+	CameraSpringArm->SetRelativeRotation(NewRotation);
+	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, LaunchVelocity]()
+	{
+		PhysicsMesh->SetPhysicsLinearVelocity(LaunchVelocity);
+		ReadyToLaunch = false;
+	}, BlendDelay, false);
+	
 }
 

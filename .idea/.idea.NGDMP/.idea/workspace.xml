@@ -14,23 +14,25 @@
   <component name="ChangeListManager">
     <list default="true" id="0758d489-4065-4dd5-b510-72dd782bccfa" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.NGDMP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.NGDMP/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultGameplayTags.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultGameplayTags.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Common/M_Outline.uasset" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Levels/Sandbox.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Levels/Sandbox.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/BP_Marble.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/BP_Marble.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/M_MarbleAImed.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/M_MarblePossessed.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/PM_DefaultMarblePhysicsMaterlal.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/PM_DefaultMarblePhysicsMaterlal.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/BP_MasterPawn.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Player/BP_MasterPawn.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/IA_Debug_FKey.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/IA_Escape.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/IA_MasterAction.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/IA_MasterLook.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/IA_MasterMovement.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/IA_ToggleFocus.uasset" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/IMC_MasterInput.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Player/IMC_MasterInput.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/PC_MasterController.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Player/PC_MasterController.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NGDMP.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/NGDMP.uproject" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/NGDMP.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/NGDMP.Build.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/ST_Player.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Player/ST_Player.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/InspectTask.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/MasterPlayerController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/MasterPlayerController.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/SpectateTask.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/BaseMarble.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/BaseMarble.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/InspectTask.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/MasterPlayerController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/MasterPlayerController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/SpectateTask.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,8 +43,38 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/AITestSuite/Classes/BehaviorTree/TestBTTask_Log.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/AITestSuite/Private/BehaviorTree/TestBTTask_ToggleFlag.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/Android/AndroidPlatformEditor/Private/AndroidTargetSettingsCustomization.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/Android/AndroidPlatformEditor/Private/AndroidTargetSettingsCustomization.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/Android/AndroidTargetPlatformControls/Private/AndroidTargetDevice.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/Android/AndroidTargetPlatformControls/Private/AndroidTargetDevice.inl" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/Android/AndroidTargetPlatformControls/Private/AndroidTargetDeviceOutput.inl" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/Android/AndroidTargetPlatformControls/Private/AndroidTargetPlatformControls.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/AssetTools/Private/AssetHeaderPatcher.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/AssetTools/Private/AssetViewUtils.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/AudioFormatRad/Private/AudioFormatRad.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/AutomationController/Private/AutomationControllerSettings.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/AutomationDriver/Private/AutomationDriverLogging.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/CookOnTheFlyNetServer/Private/CookOnTheFlyNetServerBase.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/DerivedDataCache/Private/DerivedDataCacheStats.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/DerivedDataCache/Private/FileSystemCacheStore.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/DesktopPlatform/Private/DesktopPlatformBase.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/DeviceManager/Private/Widgets/Browser/SDeviceBrowserDeviceListRow.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/FunctionalTesting/Private/ScreenshotFunctionalTestBase.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/IOS/IOSPlatformEditor/Private/IOSTargetSettingsCustomization.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/MeshSimplifier/Private/Quadric.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/ProjectLauncher/Private/Widgets/Deploy/SProjectLauncherSimpleDeviceListView.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/TargetDeviceServices/Private/Services/TargetDeviceService.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/TextureFormat/Private/TextureFormatManagerModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Developer/Windows/WindowsTargetPlatform/Private/WindowsTargetPlatformModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Editor/TurnkeySupport/Private/TurnkeySupportModule.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Core/Public/Logging/LogMacros.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Core/Public/Logging/LogVerbosity.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Core/Public/Math/MathFwd.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Core/Public/Math/UnrealMathUtility.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/CoreUObject/Public/UObject/Object.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/CoreUObject/Public/UObject/ObjectPtr.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Engine/Classes/Camera/PlayerCameraManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Engine/Classes/Components/SphereComponent.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Engine/Classes/Components/StaticMeshComponent.h" root0="FORCE_HIGHLIGHTING" />
@@ -57,12 +89,16 @@
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/Engine/Private/PrimitiveDrawingUtils.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/GameplayTags/Classes/GameplayTagContainer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/UMG/Private/WidgetLayoutLibrary.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/UMG/Public/Blueprint/WidgetLayoutLibrary.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/UMG/Public/Components/CheckBox.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Intermediate/Build/Win64/UnrealEditor/Inc/NGDMP/UHT/ThirdPersonFreeCameraTask.gen.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/NGDMP/Private/ThirdPersonFreeCameraTask.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/NGDMP/Public/BaseMarble.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/NGDMP/Public/ThirdPersonFreeCameraTask.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="Toolset" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -75,7 +111,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.EpicGames.AspNet.executor&quot;: &quot;Debug&quot;,
+    &quot;.NET Launch Settings Profile.EpicGames.AspNet.executor&quot;: &quot;Run&quot;,
     &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
@@ -569,6 +605,21 @@
       <workItem from="1731830900202" duration="8040000" />
       <workItem from="1731915211500" duration="6018000" />
       <workItem from="1731941680181" duration="5539000" />
+      <workItem from="1732107614663" duration="4713000" />
+      <workItem from="1733055937208" duration="840000" />
+      <workItem from="1733056867501" duration="4456000" />
+      <workItem from="1733062222338" duration="383000" />
+      <workItem from="1733138642767" duration="910000" />
+      <workItem from="1733153516673" duration="525000" />
+      <workItem from="1733154097246" duration="350000" />
+      <workItem from="1733154481411" duration="4999000" />
+      <workItem from="1733197859226" duration="11000" />
+      <workItem from="1733197927414" duration="11393000" />
+      <workItem from="1734410917877" duration="1490000" />
+      <workItem from="1734412434310" duration="1993000" />
+      <workItem from="1734497317789" duration="13278000" />
+      <workItem from="1734595295754" duration="22652000" />
+      <workItem from="1734767770425" duration="2133000" />
     </task>
     <servers />
   </component>

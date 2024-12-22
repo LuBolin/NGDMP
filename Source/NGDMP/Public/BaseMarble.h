@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "BaseMarble.generated.h"
+
 
 UCLASS()
 class NGDMP_API ABaseMarble : public APawn
@@ -12,29 +16,44 @@ class NGDMP_API ABaseMarble : public APawn
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	ABaseMarble();
-
-	// function to return the plane it is on
+	
+	// Returns the plane the marble is on
 	UFUNCTION(BlueprintCallable)
 	FVector GetPlaneNormal();
 
-	// default mesh size
+	UFUNCTION()
+	void Launch(FVector Direction, float Force, float BlendDelay);
+	
+	UPROPERTY()
 	float Radius = 0.0f;
 
 	UPROPERTY()
-	UStaticMeshComponent* MarbleMesh = nullptr;
+	bool ReadyToLaunch = false;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* PhysicsMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* AnimalMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USphereComponent* MarbleCollider;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USpringArmComponent *CameraSpringArm;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCameraComponent* FirstPersonCamera;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bPossessed = false;
 	
 protected:
+	UFUNCTION()
 	virtual void BeginPlay() override;
 
-public:	
+	UFUNCTION()
 	virtual void Tick(float DeltaTime) override;
 
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Marble")
-	bool bPossessed = false;
-
-	UFUNCTION(BlueprintCallable, Category = "Marble")
-	void Launch(FVector Direction, float Force);
 };

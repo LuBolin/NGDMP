@@ -1,40 +1,50 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SpectateTask.h"
+#include "ThirdPersonFreeCameraTask.h"
 #include "MasterPlayerController.h"
-#include "GameplayTagContainer.h"
 #include "BaseMarble.h"
 #include "StateTreeExecutionContext.h"
 #include "StateTreeExecutionTypes.h"
 
 
 // EnterState
-EStateTreeRunStatus USpectateTask::EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
+EStateTreeRunStatus UThirdPersonFreeCameraTask::EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
 {
-	if (not PlayerController)
-		PlayerController = Cast<AMasterPlayerController>(Context.GetOwner());
+	UE_LOG(LogTemp, Warning, TEXT("Entering ThirdPersonFreeCameraTask"));
 	
-	PlayerController->FIA_Move.AddDynamic(this, &USpectateTask::CameraMovement);
-	PlayerController->FIA_Inspect.AddDynamic(this, &USpectateTask::Inspect);
-	PlayerController->FIA_MouseLook.AddDynamic(this, &USpectateTask::CameraPan);
-
+	if (not PlayerController)
+	{
+		PlayerController = Cast<AMasterPlayerController>(Context.GetOwner());
+	}
+	
+	PlayerController->FIA_Move.AddDynamic(this, &UThirdPersonFreeCameraTask::CameraMovement);
+	PlayerController->FIA_MouseLook.AddDynamic(this, &UThirdPersonFreeCameraTask::CameraPan);
+	PlayerController->FIA_Interact.AddDynamic(this, &UThirdPersonFreeCameraTask::PossessAimedPawn);
+	PlayerController->FIA_Toggle.AddDynamic(this, &UThirdPersonFreeCameraTask::ToThirdPersonMarbleCenteredTask);
+	
 	PlayerController->PossessedMarble = nullptr;
 	PlayerController->FPossess_Updated.Broadcast(nullptr);
+
+	// Sync with pawn rotation
+	PlayerController->SetControlRotation(PlayerController->GetPawn()->GetActorRotation());
 	
 	return EStateTreeRunStatus::Running;
 }
 
 // ExitState
-void USpectateTask::ExitState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
+void UThirdPersonFreeCameraTask::ExitState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
 {
-	PlayerController->FIA_Move.RemoveDynamic(this, &USpectateTask::CameraMovement);
-	PlayerController->FIA_Inspect.RemoveDynamic(this, &USpectateTask::Inspect);
-	PlayerController->FIA_MouseLook.RemoveDynamic(this, &USpectateTask::CameraPan);
+	PlayerController->FIA_Move.RemoveDynamic(this, &UThirdPersonFreeCameraTask::CameraMovement);
+	PlayerController->FIA_MouseLook.RemoveDynamic(this, &UThirdPersonFreeCameraTask::CameraPan);
+	PlayerController->FIA_Interact.RemoveDynamic(this, &UThirdPersonFreeCameraTask::PossessAimedPawn);
+	PlayerController->FIA_Toggle.RemoveDynamic(this, &UThirdPersonFreeCameraTask::ToThirdPersonMarbleCenteredTask);
+
+	UE_LOG(LogTemp, Warning, TEXT("Exiting ThirdPersonFreeCameraTask"));
 }
 
 // CameraMovement
-void USpectateTask::CameraMovement(FVector3f Input)
+void UThirdPersonFreeCameraTask::CameraMovement(FVector3f Input)
 {
 	APawn* SpectatePawn = PlayerController->GetPawn();
 	const FVector Front = SpectatePawn->GetActorForwardVector();
@@ -48,7 +58,7 @@ void USpectateTask::CameraMovement(FVector3f Input)
 
 }
 
-EStateTreeRunStatus USpectateTask::Tick(FStateTreeExecutionContext& Context, const float DeltaTime)
+EStateTreeRunStatus UThirdPersonFreeCameraTask::Tick(FStateTreeExecutionContext& Context, const float DeltaTime)
 {
 	// line trace for 'aim' update
 	APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager;
@@ -68,9 +78,6 @@ EStateTreeRunStatus USpectateTask::Tick(FStateTreeExecutionContext& Context, con
 		// if failed cast, auto nullptr
 		HitMarble = Cast<ABaseMarble>(HitResult.GetActor());
 	}
-	else {
-		HitMarble = nullptr;
-	}
 	
 	if (HitMarble != AimedMarble)
 	{		
@@ -81,28 +88,31 @@ EStateTreeRunStatus USpectateTask::Tick(FStateTreeExecutionContext& Context, con
 	return EStateTreeRunStatus::Running;
 }
 
-void USpectateTask::CameraPan(FVector2f Input)
+void UThirdPersonFreeCameraTask::CameraPan(FVector2f Input)
 {
 	PlayerController->AddYawInput(Input.X);
 	PlayerController->AddPitchInput(Input.Y);
 	PlayerController->GetPawn()->SetActorRotation(PlayerController->GetControlRotation());
 }
 
-
-void USpectateTask::Inspect(bool bInspect)
+void UThirdPersonFreeCameraTask::PossessAimedPawn(bool bInspect)
 {
 	if (not AimedMarble)
+	{
 		return;
-
-	// the code below results in "node is inactive" error
-	// Source code shows that it is because InstanceStorage
-	// and CachedOwner are null
-	// SendEvent(FStateTreeEvent(
-	// 	FGameplayTag::RequestGameplayTag(FName("Inspect.Inspect"))));
+	}
 
 	PlayerController->PossessedMarble = AimedMarble;
+	ToThirdPersonMarbleCenteredTask(bInspect);
+}
 
-	UStateTreeComponent* StateTreeComponent = PlayerController->StateTreeComponent;
-	StateTreeComponent->SendStateTreeEvent(FStateTreeEvent(
-		FGameplayTag::RequestGameplayTag(FName("Inspect.Inspect"))));
+void UThirdPersonFreeCameraTask::ToThirdPersonMarbleCenteredTask(bool bInspect)
+{
+	if (not PlayerController->PossessedMarble)
+	{
+		return;
+	}
+	
+	// FinishTask(true); // why does this not trigger the transition?
+	PlayerController->SendStateTreeEventByTagString("Marble.ThirdPerson");
 }
