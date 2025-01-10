@@ -2,36 +2,78 @@
 
 
 #include "BaseMarble.h"
-#include "Components/SphereComponent.h"
+#include "HealthBar.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "MasterPlayerController.h"
+
 
 ABaseMarble::ABaseMarble()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PhysicsMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Marble"));
 	RootComponent = PhysicsMesh;
-	AnimalMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnimalMesh"));
-	AnimalMesh->SetupAttachment(PhysicsMesh);
 	MarbleCollider = CreateDefaultSubobject<USphereComponent>(TEXT("MarbleCollider"));
 	MarbleCollider->SetupAttachment(PhysicsMesh);
-	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
-	CameraSpringArm->SetupAttachment(PhysicsMesh);
+	AnimalCameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
+	AnimalCameraSpringArm->SetupAttachment(PhysicsMesh);
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	FirstPersonCamera->SetupAttachment(CameraSpringArm);
+	FirstPersonCamera->SetupAttachment(AnimalCameraSpringArm);
+	AnimalMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnimalMesh"));
+	// AnimalMesh->SetupAttachment(PhysicsMesh);
+	AnimalMesh->SetupAttachment(AnimalCameraSpringArm);
+	OutlineMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OutlineMesh"));
+	OutlineMesh->SetupAttachment(PhysicsMesh);
+	InfoSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("InfoSpringArm"));
+	InfoSpringArm->SetupAttachment(PhysicsMesh);
+	StatusLabel = CreateDefaultSubobject<UTextRenderComponent>(TEXT("StatusLabel"));
+	StatusLabel->SetupAttachment(InfoSpringArm);
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthBar->SetWidgetSpace(EWidgetSpace::World);
+	// HealthBar->SetWidgetClass(UHealthBar::StaticClass());
+	HealthBar->SetDrawAtDesiredSize(true);
+	HealthBar->SetPivot(FVector2D(0.5f, 0.5f));
+	HealthBar->SetupAttachment(InfoSpringArm);
+	
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 }
 
 // Called when the game starts or when spawned
 void ABaseMarble::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	AMasterPlayerController* MasterPlayerController = AMasterPlayerController::Instance;
 	Radius = MarbleCollider->GetUnscaledSphereRadius();
+
+	InitOutlineMaterialInstance();
+
+	InfoSpringArm->TargetArmLength = 0;
+	InfoSpringArm->TargetOffset = FVector::UpVector * Radius * 1.0f;
+	UE_LOG(LogTemp, Warning, TEXT("Radius: %f"), Radius);
+	// SetupAttachment does not work in constructor for this for some reason
+	StatusLabel->AttachToComponent(InfoSpringArm, FAttachmentTransformRules::KeepRelativeTransform);
+	// AnimalMesh->AttachToComponent(AnimalCameraSpringArm, FAttachmentTransformRules::KeepRelativeTransform);
+
+	UHealthBar* HealthBarWidget = Cast<UHealthBar>(HealthBar->GetUserWidgetObject());
+	HealthBarWidget->SetCombatComponent(CombatComponent);
+	UE_LOG(LogTemp, Warning, TEXT("HealthBarWidget is valid"));
+	
+	MasterPlayerController->FAim_Updated.AddDynamic(this, &ABaseMarble::AimUpdateOutlineMaterialInstance);
+	MasterPlayerController->FPossess_Updated.AddDynamic(this, &ABaseMarble::PossessUpdateOutlineMaterialInstance);
+	
+	ReadyToLaunch = true;
 }
 
 // Called every frame
 void ABaseMarble::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (!ReadyToLaunch and GetVelocity().Size() == 0.0f)
-		ReadyToLaunch = true;
+
+	UpdateStatusValues();
+	
+	SyncWithVelocityDirection();
+
+	RenderInfoGroup();
 }
 
 
@@ -69,14 +111,102 @@ void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 	SetActorRotation(NewRotation);
 	// set camera rotation separately, since camera
 	// does not inherit rotation (as intended) due to spring arm
-	CameraSpringArm->SetRelativeRotation(NewRotation);
+	AnimalCameraSpringArm->SetRelativeRotation(NewRotation);
 	
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, LaunchVelocity]()
 	{
 		PhysicsMesh->SetPhysicsLinearVelocity(LaunchVelocity);
 		ReadyToLaunch = false;
+		CanUseAbility = true;
 	}, BlendDelay, false);
-	
 }
 
+void ABaseMarble::InitOutlineMaterialInstance()
+{
+	UMaterialInterface* OutlineMaterial = OutlineMesh->GetMaterial(0);
+	
+	if (!OutlineMaterial)
+	{
+		UE_LOG(LogTemp, Error, TEXT("OutlineMaterial is not valid"));
+		return;
+	}
+	
+	OutlineMaterialInstance = OutlineMesh->CreateAndSetMaterialInstanceDynamicFromMaterial(0, OutlineMaterial);
+	
+	FLinearColor Black = FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	OutlineMaterialInstance->SetVectorParameterValue("OutlineColor", Black);
+	
+	OutlineMesh->SetOverlayMaterial(OutlineMaterialInstance);
+}
+
+void ABaseMarble::AimUpdateOutlineMaterialInstance(ABaseMarble* AimedMarble)
+{
+	if (bPossessed)
+		return;
+
+	FLinearColor OutlineColor = FLinearColor::Black;
+	if (AimedMarble == this)
+		OutlineColor = FLinearColor::Yellow;
+
+	OutlineMaterialInstance->SetVectorParameterValue("OutlineColor", OutlineColor);
+}
+
+void ABaseMarble::PossessUpdateOutlineMaterialInstance(ABaseMarble* PossessedMarble)
+{
+	bPossessed = PossessedMarble == this;
+	
+	FLinearColor OutlineColor = FLinearColor::Black;
+	if (bPossessed)
+		OutlineColor = FLinearColor::Green;
+
+	OutlineMaterialInstance->SetVectorParameterValue("OutlineColor", OutlineColor);
+}
+
+void ABaseMarble::UpdateStatusValues()
+{
+	bool Awake = PhysicsMesh->IsAnyRigidBodyAwake();
+	if (not Awake) // physics has been put to sleep due to Physics Material's Sleep Threshold
+	{
+		// Marble has stopped
+		ReadyToLaunch = true;
+		CanUseAbility = false;
+	}
+}
+
+void ABaseMarble::SyncWithVelocityDirection()
+{
+	FVector Velocity = PhysicsMesh->GetPhysicsLinearVelocity();
+	if (Velocity.Size() > 10.0f) // arbitrary threshold to avoid jittering, to be tuned later
+	{
+		SetActorRotation(Velocity.Rotation());
+	}
+}
+
+void ABaseMarble::RenderInfoGroup()
+{
+	AMasterPlayerController* PlayerController = AMasterPlayerController::Instance;
+	FVector PlayerCameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+	FVector OwnLocation = GetActorLocation();
+	float Distance = FVector::Dist(PlayerCameraLocation, OwnLocation);
+	bool ShouldRender = Radius < Distance && Distance <= MaxDistToRenderStatusLabel;
+
+	if (ShouldRender)
+	{
+		FString StatusString = "";
+		StatusString += ReadyToLaunch ? "Ready to launch\n" : "Not ready to launch\n";
+		StatusString += CanUseAbility ? "Can use ability\n" : "Cannot use ability\n";
+		// StatusString += "Velocity: " + FString::SanitizeFloat(GetVelocity().Size());
+		float LinearVelocity = PhysicsMesh->GetPhysicsLinearVelocity().Size();
+		float AngularVelocity = PhysicsMesh->GetPhysicsAngularVelocityInRadians().Size();
+		StatusString += "Velocity: " + FString::SanitizeFloat(LinearVelocity) + "\n";
+		StatusString += "Angular Velocity: " + FString::SanitizeFloat(AngularVelocity);
+		
+		StatusLabel->SetText(FText::FromString(StatusString));
+		
+		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(OwnLocation, PlayerCameraLocation);
+		StatusLabel->SetWorldRotation(LookAtRotation);
+		HealthBar->SetWorldRotation(LookAtRotation);
+	}
+	StatusLabel->SetVisibility(ShouldRender);
+}

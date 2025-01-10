@@ -6,12 +6,15 @@
 
 AMasterPlayerController* AMasterPlayerController::Instance = nullptr;
 
+AMasterPlayerController::AMasterPlayerController()
+{
+	Instance = this;
+}
 
 // on begin play, set the instance to this controller
 void AMasterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	Instance = this;
 	SpectatePawn = GetPawn();
 	StateTreeComponent = FindComponentByClass<UStateTreeComponent>();
 	
@@ -23,4 +26,9 @@ void AMasterPlayerController::SendStateTreeEventByTagString(FString TagString)
 	FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName(*TagString));
 	StateTreeComponent->SendStateTreeEvent(FStateTreeEvent(Tag));
 	UE_LOG(LogTemp, Log, TEXT("State Tree Event: %s"), *TagString);
+}
+
+void AMasterPlayerController::ExitGame()
+{
+	Instance->GetWorld()->GetFirstPlayerController()->ConsoleCommand("quit");
 }

@@ -24,7 +24,10 @@ EStateTreeRunStatus UThirdPersonFreeCameraTask::EnterState(FStateTreeExecutionCo
 	PlayerController->FIA_Toggle.AddDynamic(this, &UThirdPersonFreeCameraTask::ToThirdPersonMarbleCenteredTask);
 	
 	PlayerController->PossessedMarble = nullptr;
-	PlayerController->FPossess_Updated.Broadcast(nullptr);
+	// Crashes due to nullptr due to order of BeginPlay execution
+	// We don't need to run this anyways, but leave this as an example
+	// incase we need to do init things in the future
+	// PlayerController->FPossess_Updated.Broadcast(nullptr);
 
 	// Sync with pawn rotation
 	PlayerController->SetControlRotation(PlayerController->GetPawn()->GetActorRotation());

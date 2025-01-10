@@ -39,9 +39,6 @@ private:
 	
 	UPROPERTY()
 	AMasterPlayerController* PlayerController = nullptr;
-
-	UFUNCTION()
-	void Ability1(bool bClicked);
 	
 	UFUNCTION()
 	virtual void CameraPan(FVector2f Input);

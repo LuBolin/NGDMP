@@ -44,6 +44,7 @@ void UThirdPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 	PlayerController->FIA_MainAction.RemoveDynamic(this, &UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask);
 	
 	PlayerController->bShowMouseCursor = false;
+	
 	UE_LOG(LogTemp, Warning, TEXT("Exiting ThirdPersonMarbleCenteredTask"));
 }
 

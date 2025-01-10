@@ -18,7 +18,6 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 	PlayerController->SetViewTargetWithBlend(PlayerController->PossessedMarble, SetViewBlendDuration, EViewTargetBlendFunction::VTBlend_Linear, 0.0f, true);
 	bAnimalHidden = false;
 
-	PlayerController->FIA_MainAction.AddDynamic(this, &UFirstPersonMarbleCenteredTask::Ability1);
 	PlayerController->FIA_MouseLook.AddDynamic(this, &UFirstPersonMarbleCenteredTask::CameraPan);
 	PlayerController->FIA_Escape.AddDynamic(this, &UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask);
 	
@@ -29,9 +28,9 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 void UFirstPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
 {
 	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
-	PossessedMarble->AnimalMesh->SetOwnerNoSee(true);
+	PossessedMarble->AnimalMesh->SetOwnerNoSee(false);
+	PossessedMarble->StatusLabel->SetOwnerNoSee(false);
 
-	PlayerController->FIA_MainAction.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::Ability1);
 	PlayerController->FIA_MouseLook.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::CameraPan);
 	PlayerController->FIA_Escape.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask);
 	
@@ -51,6 +50,7 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::Tick(FStateTreeExecutionCont
 		if (LocationOffset.Size() <= PossessedMarble->Radius)
 		{
 			PossessedMarble->AnimalMesh->SetOwnerNoSee(true);
+			PossessedMarble->StatusLabel->SetOwnerNoSee(true);
 			bAnimalHidden = true;
 		}
 	}
@@ -58,18 +58,12 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::Tick(FStateTreeExecutionCont
 	return EStateTreeRunStatus::Running;
 }
 
-// Ability1
-void UFirstPersonMarbleCenteredTask::Ability1(bool bClicked)
-{
-	if (bClicked)
-		UE_LOG(LogTemp, Display, TEXT("Ability1"));
-}
 
 // CameraPan
 void UFirstPersonMarbleCenteredTask::CameraPan(FVector2f Input)
 {
 	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
-	USpringArmComponent* SpringArm = PossessedMarble->CameraSpringArm;
+	USpringArmComponent* SpringArm = PossessedMarble->AnimalCameraSpringArm;
 	FRotator CurrentRotation = SpringArm->GetRelativeRotation();
 	
 	CurrentRotation.Yaw += Input.X;
@@ -84,7 +78,7 @@ void UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask(bool bPress
 	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
 	FVector TravelDirection = PossessedMarble->GetVelocity();
 	if (TravelDirection.Size() == 0.0f)
-		TravelDirection = PossessedMarble->CameraSpringArm->GetForwardVector();
+		TravelDirection = PossessedMarble->AnimalCameraSpringArm->GetForwardVector();
 	FVector BackwardUp = TravelDirection;
 	BackwardUp.Z = 0;
 	BackwardUp.Normalize();

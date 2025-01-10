@@ -16,6 +16,7 @@ public class NGDMP : ModuleRules
 			"StateTreeModule", "GameplayStateTreeModule", 
 			"StateTreeEditorModule", "StateTreeTestSuite",
 			"UMG", "UMGEditor", "Slate", "SlateCore",
+			
 		});
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 

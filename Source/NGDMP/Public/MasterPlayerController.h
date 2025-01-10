@@ -14,7 +14,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAim_Updated, ABaseMarble*, AimedMar
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPossess_Updated, ABaseMarble*, PossessedMarble);
 
 
-
 // input events for states to 'subscribe' to in C++
 // basically broadcast the IA delegates
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Move, FVector3f, Input);
@@ -30,24 +29,29 @@ class NGDMP_API AMasterPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	AMasterPlayerController();
+	
 	static AMasterPlayerController* Instance;
+	
+	UFUNCTION()
+	static void ExitGame();
 
 	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
 	FAim_Updated FAim_Updated;
 	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
 	FPossess_Updated FPossess_Updated;
 	
-	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_Move FIA_Move;
-	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_MouseLook FIA_MouseLook;
-	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_Toggle FIA_Toggle;
-	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_MainAction FIA_MainAction;
-	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_Escape FIA_Escape;
-	UPROPERTY(BlueprintCallable, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_Interact FIA_Interact;
 
 	UFUNCTION() // helper function to send a state tree event by tag
