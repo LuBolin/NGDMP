@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/StateTreeTaskBlueprintBase.h"
+#include "MyStateTreeTaskBlueprintBase.h"
 #include "MasterPlayerController.h"
 #include "FirstPersonMarbleCenteredTask.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class NGDMP_API UFirstPersonMarbleCenteredTask : public UStateTreeTaskBlueprintBase
+class NGDMP_API UFirstPersonMarbleCenteredTask : public UMyStateTreeTaskBlueprintBase
 {
 	GENERATED_BODY()
 
@@ -36,9 +36,6 @@ protected:
 private:
 	UPROPERTY()
 	bool bAnimalHidden = false;
-	
-	UPROPERTY()
-	AMasterPlayerController* PlayerController = nullptr;
 	
 	UFUNCTION()
 	virtual void CameraPan(FVector2f Input);

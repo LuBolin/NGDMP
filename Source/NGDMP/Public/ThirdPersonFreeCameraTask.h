@@ -5,14 +5,14 @@
 #include "CoreMinimal.h"
 #include "BaseMarble.h"
 #include "MasterPlayerController.h"
-#include "Blueprint/StateTreeTaskBlueprintBase.h"
+#include "MyStateTreeTaskBlueprintBase.h"
 #include "ThirdPersonFreeCameraTask.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class NGDMP_API UThirdPersonFreeCameraTask : public UStateTreeTaskBlueprintBase
+class NGDMP_API UThirdPersonFreeCameraTask : public UMyStateTreeTaskBlueprintBase
 {
 	GENERATED_BODY()
 
@@ -31,8 +31,6 @@ protected:
 		const float DeltaTime) override;
 
 private:
-	UPROPERTY()
-	AMasterPlayerController* PlayerController = nullptr;
 
 	UPROPERTY()
 	ABaseMarble* AimedMarble = nullptr;

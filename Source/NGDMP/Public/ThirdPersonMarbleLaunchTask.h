@@ -5,14 +5,12 @@
 #include "CoreMinimal.h"
 #include "MasterPlayerController.h"
 #include "ThirdPersonMarbleCenteredTask.h"
-#include "Blueprint/StateTreeTaskBlueprintBase.h"
 #include "ThirdPersonMarbleLaunchTask.generated.h"
 
 /**
  * 
  */
 UCLASS()
-// class NGDMP_API UThirdPersonMarbleLaunchTask : public UStateTreeTaskBlueprintBase
 class NGDMP_API UThirdPersonMarbleLaunchTask : public UThirdPersonMarbleCenteredTask
 {
 	GENERATED_BODY()

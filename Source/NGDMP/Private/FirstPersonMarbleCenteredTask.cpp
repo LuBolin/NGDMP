@@ -9,10 +9,7 @@
 // Enter State
 EStateTreeRunStatus UFirstPersonMarbleCenteredTask::EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Entering FirstPersonMarbleCenteredTask"));
-	
-	if (not PlayerController)
-		PlayerController = Cast<AMasterPlayerController>(Context.GetOwner());
+	Super::EnterState(Context, Transition);
 
 	// SetViewTarget with blend to the marble's camera
 	PlayerController->SetViewTargetWithBlend(PlayerController->PossessedMarble, SetViewBlendDuration, EViewTargetBlendFunction::VTBlend_Linear, 0.0f, true);
@@ -33,8 +30,8 @@ void UFirstPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 
 	PlayerController->FIA_MouseLook.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::CameraPan);
 	PlayerController->FIA_Escape.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask);
-	
-	UE_LOG(LogTemp, Warning, TEXT("Exiting FirstPersonMarbleCenteredTask"));
+
+	Super::ExitState(Context, Transition);
 }
 
 // Tick

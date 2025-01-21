@@ -10,7 +10,10 @@
 #include "Components/TextRenderComponent.h"
 #include "Components/WidgetComponent.h"
 #include "CombatComponent.h"
+#include "AnimalDataAsset.h"
 #include "BaseMarble.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(F_OnStopActing, ABaseMarble*, ActingMarble);
 
 UCLASS()
 class NGDMP_API ABaseMarble : public APawn
@@ -35,6 +38,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool CanUseAbility = false;
+	
+	UPROPERTY(BlueprintReadWrite)
+	bool TakingTurn = false;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* PhysicsMesh;
@@ -69,6 +75,12 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bPossessed = false;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UAnimalDataAsset* AnimalDataAsset;
+
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
+	F_OnStopActing F_OnStopActing;
+	
 protected:
 	const float MaxDistToRenderStatusLabel = 2000.0f;
 	
@@ -77,8 +89,10 @@ protected:
 
 	UFUNCTION()
 	virtual void Tick(float DeltaTime) override;
-	
 
+	UFUNCTION()
+	virtual void EndTurn();
+	
 private:
 	UPROPERTY()
 	UMaterialInstanceDynamic* OutlineMaterialInstance;
@@ -101,4 +115,9 @@ private:
 	UFUNCTION()
 	void RenderInfoGroup();
 
+	UFUNCTION()
+	void InitComponents();
+
+	UFUNCTION()
+	void AddToGameState();
 };

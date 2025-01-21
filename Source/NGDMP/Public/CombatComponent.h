@@ -28,11 +28,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void Heal(float Amount);
 
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetMaxHealth(float MaxHealth, bool Sync = false);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float MaxHealth;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	float CurrentHealth;
+
+protected:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnHealthChangedDelegate OnHealthChanged;

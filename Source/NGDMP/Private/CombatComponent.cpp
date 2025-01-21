@@ -18,7 +18,8 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Not really needed, since SetMaxHealth will be called based on AnimalData anyways
     CurrentHealth = MaxHealth;
 }
 
@@ -48,4 +49,20 @@ void UCombatComponent::Heal(float Amount)
 
 	CurrentHealth = FMath::Clamp(CurrentHealth + Amount, 0.f, MaxHealth);
 	OnHealthChanged.Broadcast(CurrentHealth);
+}
+
+void UCombatComponent::SetMaxHealth(float NewMaxHealth, bool Sync)
+{
+	MaxHealth = NewMaxHealth;
+	float NewCurrentHealth;
+	if (Sync)
+		NewCurrentHealth = MaxHealth;
+	else
+		NewCurrentHealth = FMath::Clamp(CurrentHealth, 0.f, MaxHealth);
+	
+	if (NewCurrentHealth != CurrentHealth)
+	{
+		CurrentHealth = NewCurrentHealth;
+		OnHealthChanged.Broadcast(CurrentHealth);
+	}
 }

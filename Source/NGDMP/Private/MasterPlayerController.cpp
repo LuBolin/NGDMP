@@ -17,6 +17,8 @@ void AMasterPlayerController::BeginPlay()
 	Super::BeginPlay();
 	SpectatePawn = GetPawn();
 	StateTreeComponent = FindComponentByClass<UStateTreeComponent>();
+	// Manually start logic, so inits such as HUD's binding are set
+	StateTreeComponent->StartLogic();
 	
 	SetViewTargetWithBlend(SpectatePawn, 0.5f);
 }

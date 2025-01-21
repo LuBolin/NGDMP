@@ -5,31 +5,38 @@
 #include "HealthBar.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "MasterPlayerController.h"
+#include "TurnBasedGameState.h"
 
 
 ABaseMarble::ABaseMarble()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PhysicsMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Marble"));
+	PhysicsMesh->SetSimulatePhysics(true);
 	RootComponent = PhysicsMesh;
 	MarbleCollider = CreateDefaultSubobject<USphereComponent>(TEXT("MarbleCollider"));
 	MarbleCollider->SetupAttachment(PhysicsMesh);
 	AnimalCameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
+	AnimalCameraSpringArm->TargetArmLength = 0;
 	AnimalCameraSpringArm->SetupAttachment(PhysicsMesh);
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera->SetupAttachment(AnimalCameraSpringArm);
 	AnimalMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnimalMesh"));
+	AnimalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	// AnimalMesh->SetupAttachment(PhysicsMesh);
 	AnimalMesh->SetupAttachment(AnimalCameraSpringArm);
 	OutlineMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OutlineMesh"));
+	OutlineMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	OutlineMesh->SetupAttachment(PhysicsMesh);
 	InfoSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("InfoSpringArm"));
+	InfoSpringArm->TargetArmLength = 0;
+	InfoSpringArm->TargetOffset = FVector::UpVector * 50.0f;
 	InfoSpringArm->SetupAttachment(PhysicsMesh);
 	StatusLabel = CreateDefaultSubobject<UTextRenderComponent>(TEXT("StatusLabel"));
 	StatusLabel->SetupAttachment(InfoSpringArm);
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
 	HealthBar->SetWidgetSpace(EWidgetSpace::World);
-	// HealthBar->SetWidgetClass(UHealthBar::StaticClass());
+	HealthBar->SetCastShadow(false);
 	HealthBar->SetDrawAtDesiredSize(true);
 	HealthBar->SetPivot(FVector2D(0.5f, 0.5f));
 	HealthBar->SetupAttachment(InfoSpringArm);
@@ -43,25 +50,15 @@ void ABaseMarble::BeginPlay()
 	Super::BeginPlay();
 	
 	AMasterPlayerController* MasterPlayerController = AMasterPlayerController::Instance;
-	Radius = MarbleCollider->GetUnscaledSphereRadius();
 
-	InitOutlineMaterialInstance();
-
-	InfoSpringArm->TargetArmLength = 0;
-	InfoSpringArm->TargetOffset = FVector::UpVector * Radius * 1.0f;
-	UE_LOG(LogTemp, Warning, TEXT("Radius: %f"), Radius);
-	// SetupAttachment does not work in constructor for this for some reason
-	StatusLabel->AttachToComponent(InfoSpringArm, FAttachmentTransformRules::KeepRelativeTransform);
-	// AnimalMesh->AttachToComponent(AnimalCameraSpringArm, FAttachmentTransformRules::KeepRelativeTransform);
-
-	UHealthBar* HealthBarWidget = Cast<UHealthBar>(HealthBar->GetUserWidgetObject());
-	HealthBarWidget->SetCombatComponent(CombatComponent);
-	UE_LOG(LogTemp, Warning, TEXT("HealthBarWidget is valid"));
+	InitComponents();
 	
 	MasterPlayerController->FAim_Updated.AddDynamic(this, &ABaseMarble::AimUpdateOutlineMaterialInstance);
 	MasterPlayerController->FPossess_Updated.AddDynamic(this, &ABaseMarble::PossessUpdateOutlineMaterialInstance);
 	
 	ReadyToLaunch = true;
+
+	AddToGameState();
 }
 
 // Called every frame
@@ -117,6 +114,7 @@ void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, LaunchVelocity]()
 	{
 		PhysicsMesh->SetPhysicsLinearVelocity(LaunchVelocity);
+		TakingTurn = true;
 		ReadyToLaunch = false;
 		CanUseAbility = true;
 	}, BlendDelay, false);
@@ -166,11 +164,10 @@ void ABaseMarble::PossessUpdateOutlineMaterialInstance(ABaseMarble* PossessedMar
 void ABaseMarble::UpdateStatusValues()
 {
 	bool Awake = PhysicsMesh->IsAnyRigidBodyAwake();
-	if (not Awake) // physics has been put to sleep due to Physics Material's Sleep Threshold
+	if (TakingTurn and not Awake) // physics has been put to sleep due to Physics Material's Sleep Threshold
 	{
 		// Marble has stopped
-		ReadyToLaunch = true;
-		CanUseAbility = false;
+		EndTurn();
 	}
 }
 
@@ -209,4 +206,50 @@ void ABaseMarble::RenderInfoGroup()
 		HealthBar->SetWorldRotation(LookAtRotation);
 	}
 	StatusLabel->SetVisibility(ShouldRender);
+}
+
+void ABaseMarble::EndTurn()
+{
+	ReadyToLaunch = true;
+	CanUseAbility = false;
+	TakingTurn = false;
+	F_OnStopActing.Broadcast(this);
+}
+
+void ABaseMarble::InitComponents()
+{
+	Radius = MarbleCollider->GetUnscaledSphereRadius();
+
+	if (!AnimalDataAsset)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AnimalDataAsset is not valid"));
+		Destroy();
+		return;
+	}
+	CombatComponent->SetMaxHealth(AnimalDataAsset->MaxHealth, true);
+	
+	InitOutlineMaterialInstance();
+
+	InfoSpringArm->TargetOffset += FVector::UpVector * Radius * 1.0f;
+	// SetupAttachment does not work in constructor for this for some reason
+	StatusLabel->AttachToComponent(InfoSpringArm, FAttachmentTransformRules::KeepRelativeTransform);
+
+	UHealthBar* HealthBarWidget = Cast<UHealthBar>(HealthBar->GetUserWidgetObject());
+	HealthBarWidget->SetCombatComponent(CombatComponent);
+}
+
+void ABaseMarble::AddToGameState()
+{
+	AGameStateBase* GameState = GetWorld()->GetGameState();
+	if (not GameState)
+		return;
+	
+	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
+	if (not TurnBasedGameState)
+		return;
+
+	if (IsA<ABaseEnemy>())
+		TurnBasedGameState->EnemyActorsActable.Add(Cast<ABaseEnemy>(this), false);
+	else
+		TurnBasedGameState->PlayerMarblesActable.Add(this, false);
 }

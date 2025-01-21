@@ -22,6 +22,8 @@ public:
 	void SetCombatComponent(UCombatComponent* CombatComponent);
 	
 protected:
+	virtual void NativeConstruct() override;
+	
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UPROPERTY()

@@ -9,10 +9,7 @@
 // EnterState
 EStateTreeRunStatus UThirdPersonMarbleCenteredTask::EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Entering ThirdPersonMarbleCenteredTask"));
-	
-	if (not PlayerController)
-		PlayerController = Cast<AMasterPlayerController>(Context.GetOwner());
+	Super::EnterState(Context, Transition);
 	
 	PlayerController->FIA_Move.AddDynamic(this, &UThirdPersonMarbleCenteredTask::CameraMovement);
 	PlayerController->FIA_Escape.AddDynamic(this, &UThirdPersonMarbleCenteredTask::ToThirdPersonFreeCameraTask);
@@ -44,8 +41,8 @@ void UThirdPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 	PlayerController->FIA_MainAction.RemoveDynamic(this, &UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask);
 	
 	PlayerController->bShowMouseCursor = false;
-	
-	UE_LOG(LogTemp, Warning, TEXT("Exiting ThirdPersonMarbleCenteredTask"));
+
+	Super::ExitState(Context, Transition);
 }
 
 // Tick

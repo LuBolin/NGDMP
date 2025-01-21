@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/StateTreeTaskBlueprintBase.h"
+#include "MyStateTreeTaskBlueprintBase.h"
 #include "MasterPlayerController.h"
 #include "ThirdPersonMarbleCenteredTask.generated.h"
 
@@ -11,14 +11,11 @@
  * 
  */
 UCLASS()
-class NGDMP_API UThirdPersonMarbleCenteredTask : public UStateTreeTaskBlueprintBase
+class NGDMP_API UThirdPersonMarbleCenteredTask : public UMyStateTreeTaskBlueprintBase
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY() 
-	AMasterPlayerController* PlayerController = nullptr;
-
 	UPROPERTY()
 	FVector CameraOffset = FVector::ZeroVector;
 	

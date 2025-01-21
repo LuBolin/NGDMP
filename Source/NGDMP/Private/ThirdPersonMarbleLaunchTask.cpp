@@ -12,10 +12,8 @@
 
 EStateTreeRunStatus UThirdPersonMarbleLaunchTask::EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Entering ThirdPersonMarbleLaunchTask"));
-	
-	if (not PlayerController)
-		PlayerController = Cast<AMasterPlayerController>(Context.GetOwner());
+	// EnterState of UMyStateTreeTaskBlueprintBase
+	Super::Super::EnterState(Context, Transition);
 
 	PlayerController->FIA_Move.AddDynamic(this, &UThirdPersonMarbleLaunchTask::CameraMovement);
 	PlayerController->FIA_MainAction.AddDynamic(this, &UThirdPersonMarbleLaunchTask::TryLaunch);
@@ -41,6 +39,9 @@ void UThirdPersonMarbleLaunchTask::ExitState(FStateTreeExecutionContext& Context
 	PlayerController->FIA_Escape.RemoveDynamic(this, &UThirdPersonMarbleLaunchTask::CancelLaunch);
 	
 	PlayerController->bShowMouseCursor = false;
+	
+	// ExitState of UMyStateTreeTaskBlueprintBase
+	Super::Super::ExitState(Context, Transition);
 }
 
 

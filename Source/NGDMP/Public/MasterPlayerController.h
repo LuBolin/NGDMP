@@ -12,6 +12,7 @@
 // signals for other actors to 'subscribe' to
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAim_Updated, ABaseMarble*, AimedMarble);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPossess_Updated, ABaseMarble*, PossessedMarble);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FState_Updated, FString, StateName);
 
 
 // input events for states to 'subscribe' to in C++
@@ -30,7 +31,7 @@ class NGDMP_API AMasterPlayerController : public APlayerController
 
 public:
 	AMasterPlayerController();
-	
+
 	static AMasterPlayerController* Instance;
 	
 	UFUNCTION()
@@ -40,6 +41,8 @@ public:
 	FAim_Updated FAim_Updated;
 	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
 	FPossess_Updated FPossess_Updated;
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
+	FState_Updated FState_Updated;
 	
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_Move FIA_Move;
@@ -54,7 +57,7 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_Interact FIA_Interact;
 
-	UFUNCTION() // helper function to send a state tree event by tag
+	UFUNCTION(BlueprintCallable) // helper function to send a state tree event by tag
 	void SendStateTreeEventByTagString(FString TagString);
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "General")
@@ -64,12 +67,9 @@ public:
 	APawn* SpectatePawn = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Possession")
 	ABaseMarble* PossessedMarble = nullptr;
-
 	
 protected:
 	UFUNCTION()
 	virtual void BeginPlay() override;
 
 };
-
-
