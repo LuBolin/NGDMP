@@ -3,6 +3,8 @@
 
 #include "TurnBasedGameState.h"
 
+#include "MasterPlayerController.h"
+
 ATurnBasedGameState::ATurnBasedGameState()
 {
 	CurrentTurn = ETurnState::PLAYER_TURN;
@@ -15,13 +17,14 @@ void ATurnBasedGameState::BeginPlay()
 	Super::BeginPlay();
 	CurrentTurn = ETurnState::PLAYER_TURN;
 	StartTurn();
+
+	// bind key to endturn for debugging
+	AMasterPlayerController *MasterPlayerController = AMasterPlayerController::Instance;
+	MasterPlayerController->FIA_Debug.AddDynamic(this, &ATurnBasedGameState::EndTurnWrapper);
 }
 
 void ATurnBasedGameState::StartTurn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlayerMarblesActable: %d"), PlayerMarblesActable.Num());
-	UE_LOG(LogTemp, Warning, TEXT("EnemyActorsActable: %d"), EnemyActorsActable.Num());
-	UE_LOG(LogTemp, Warning, TEXT("Turn started"));
 	// broadcast F_TurnStarted
 	if (CurrentTurn == ETurnState::PLAYER_TURN)
 		BeginPlayerTurn();
@@ -43,6 +46,7 @@ void ATurnBasedGameState::BeginPlayerTurn()
 	{
 		Marble.Value = true;
 		Marble.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::MarbleEndTurn);
+		Marble.Key->GetReadyForNewTurn();
 	}
 }
 
@@ -52,6 +56,8 @@ void ATurnBasedGameState::BeginEnemyTurn()
 	for (auto& Enemy : EnemyActorsActable)
 	{
 		Enemy.Value = true;
+		Enemy.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::EnemyActorEndTurn);
+		Enemy.Key->GetReadyForNewTurn();
 	}
 	EnemyActorStartTurn();
 }
@@ -66,7 +72,6 @@ void ATurnBasedGameState::EnemyActorStartTurn()
 		{
 			Enemy.Key->Act();
 			Enemy.Value = false;
-			Enemy.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::EnemyActorEndTurn);
 			return;
 		}
 	}
@@ -75,6 +80,7 @@ void ATurnBasedGameState::EnemyActorStartTurn()
 
 void ATurnBasedGameState::EnemyActorEndTurn(ABaseMarble* ActingEnemy)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *ActingEnemy->GetName());
 	ActingEnemy->F_OnStopActing.Clear();
 	FTimerHandle EnemyActingTimerHandle;
 	float ArbitraryDelay = 0.5f;
@@ -98,4 +104,19 @@ void ATurnBasedGameState::MarbleEndTurn(ABaseMarble* ActingMarble)
 	}
 	if (!PlayerCanStillAct)
 		EndTurn();
+}
+
+void ATurnBasedGameState::EndTurnWrapper(bool bInput)
+{
+	for (auto& Enemy : EnemyActorsActable)
+	{
+		Enemy.Key->CleanUpForEndTurn();
+		Enemy.Key->F_OnStopActing.Clear();
+	}
+	for (auto& Marble : PlayerMarblesActable)
+	{
+		Marble.Key->CleanUpForEndTurn();
+		Marble.Key->F_OnStopActing.Clear();
+	}
+	EndTurn();
 }

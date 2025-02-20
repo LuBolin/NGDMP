@@ -9,6 +9,10 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedDelegate, float, NewHealth);
 
+// Notes:
+// Inflict damage on other party
+// So when A collides with B, damaging B will be done in A, and damaging A will be done in B
+// This allows terrain to damage marble
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class NGDMP_API UCombatComponent : public UActorComponent

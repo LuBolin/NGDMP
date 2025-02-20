@@ -4,7 +4,7 @@
 #include "ThirdPersonFreeCameraTask.h"
 #include "MasterPlayerController.h"
 #include "BaseMarble.h"
-#include "StateTreeExecutionContext.h"
+#include "BaseEnemy.h"
 #include "StateTreeExecutionTypes.h"
 
 
@@ -93,6 +93,11 @@ void UThirdPersonFreeCameraTask::CameraPan(FVector2f Input)
 void UThirdPersonFreeCameraTask::PossessAimedPawn(bool bInspect)
 {
 	if (not AimedMarble)
+	{
+		return;
+	}
+
+	if (AimedMarble->IsA<ABaseEnemy>())
 	{
 		return;
 	}

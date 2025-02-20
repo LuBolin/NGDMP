@@ -19,7 +19,7 @@ public:
 	// UFUNCTION(BlueprintImplementableEvent)
 	UFUNCTION()
 	void Act();
-
+	
 protected:
 
 	virtual void BeginPlay() override;

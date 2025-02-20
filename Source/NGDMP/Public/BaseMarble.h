@@ -11,6 +11,7 @@
 #include "Components/WidgetComponent.h"
 #include "CombatComponent.h"
 #include "AnimalDataAsset.h"
+#include "NiagaraSystem.h"
 #include "BaseMarble.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(F_OnStopActing, ABaseMarble*, ActingMarble);
@@ -80,6 +81,19 @@ public:
 
 	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
 	F_OnStopActing F_OnStopActing;
+
+	
+	UFUNCTION()
+	virtual void GetReadyForNewTurn();
+	
+	UFUNCTION()
+	virtual void CleanUpForEndTurn();
+
+	UFUNCTION()
+	virtual void EndTurn();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UNiagaraSystem* CollisionParticle;
 	
 protected:
 	const float MaxDistToRenderStatusLabel = 2000.0f;
@@ -90,8 +104,15 @@ protected:
 	UFUNCTION()
 	virtual void Tick(float DeltaTime) override;
 
+	
 	UFUNCTION()
-	virtual void EndTurn();
+	FVector GetRandomVectorOnPlane(FVector Normal);
+	
+	UPROPERTY()
+	FLinearColor NeutralOutlineColor = FLinearColor::Black;
+
+	UPROPERTY()
+	FLinearColor AimedOutlineColor = FLinearColor::Yellow;
 	
 private:
 	UPROPERTY()
@@ -120,4 +141,25 @@ private:
 
 	UFUNCTION()
 	void AddToGameState();
+
+	UFUNCTION()
+	void SolvePhysicsSleep();
+
+	UPROPERTY()
+	float SleepLinearThreshold = 20.0f; // very slow
+
+	UPROPERTY()
+	int SleepCounterThreshold = 15; // quarter second
+	
+	UPROPERTY()
+	int SleepCounter = 0;
+
+	UPROPERTY()
+	FVector LastVelocity = FVector::ZeroVector;
+
+	UFUNCTION()
+	void OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION()
+	float CalculateDamage(FVector Velocity, FVector TargetDirn);
 };

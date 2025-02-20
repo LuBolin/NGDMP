@@ -23,6 +23,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Toggle, bool, Input);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_MainAction, bool, Input);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Escape, bool, Input);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Interact, bool, Input);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIA_Debug, bool, Input);
 
 UCLASS()
 class NGDMP_API AMasterPlayerController : public APlayerController
@@ -56,6 +57,8 @@ public:
 	FIA_Escape FIA_Escape;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
 	FIA_Interact FIA_Interact;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Input")
+	FIA_Debug FIA_Debug;
 
 	UFUNCTION(BlueprintCallable) // helper function to send a state tree event by tag
 	void SendStateTreeEventByTagString(FString TagString);

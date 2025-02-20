@@ -5,6 +5,7 @@
 #include "HealthBar.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "MasterPlayerController.h"
+#include "NiagaraFunctionLibrary.h"
 #include "TurnBasedGameState.h"
 
 
@@ -55,6 +56,8 @@ void ABaseMarble::BeginPlay()
 	
 	MasterPlayerController->FAim_Updated.AddDynamic(this, &ABaseMarble::AimUpdateOutlineMaterialInstance);
 	MasterPlayerController->FPossess_Updated.AddDynamic(this, &ABaseMarble::PossessUpdateOutlineMaterialInstance);
+
+	PhysicsMesh->OnComponentHit.AddDynamic(this, &ABaseMarble::OnPhysicsHit);
 	
 	ReadyToLaunch = true;
 
@@ -65,13 +68,43 @@ void ABaseMarble::BeginPlay()
 void ABaseMarble::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	UpdateStatusValues();
 	
 	SyncWithVelocityDirection();
 
 	RenderInfoGroup();
+
+	SolvePhysicsSleep();
 }
+
+
+void ABaseMarble::SolvePhysicsSleep()
+{
+	FVector CurrentVelocity = PhysicsMesh->GetPhysicsLinearVelocity();
+	if (PhysicsMesh->IsAnyRigidBodyAwake())
+	{
+		// Check if within threshold and also slowing down
+		if (CurrentVelocity.Size() < SleepLinearThreshold and CurrentVelocity.Size() < LastVelocity.Size())
+		{
+			SleepCounter++;
+			if (SleepCounter >= SleepCounterThreshold)
+			{
+				PhysicsMesh->SetPhysicsLinearVelocity(FVector::ZeroVector);
+				PhysicsMesh->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
+				PhysicsMesh->PutRigidBodyToSleep();
+				SleepCounter = 0;
+			}
+		}
+		else
+		{
+			SleepCounter = 0;
+		}
+	}
+	LastVelocity = CurrentVelocity;
+}
+
+
 
 
 FVector ABaseMarble::GetPlaneNormal()
@@ -109,7 +142,11 @@ void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 	// set camera rotation separately, since camera
 	// does not inherit rotation (as intended) due to spring arm
 	AnimalCameraSpringArm->SetRelativeRotation(NewRotation);
-	
+
+	if (BlendDelay <= 0.0f)
+	{
+		BlendDelay = 0.1f;
+	}
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, LaunchVelocity]()
 	{
@@ -143,9 +180,7 @@ void ABaseMarble::AimUpdateOutlineMaterialInstance(ABaseMarble* AimedMarble)
 	if (bPossessed)
 		return;
 
-	FLinearColor OutlineColor = FLinearColor::Black;
-	if (AimedMarble == this)
-		OutlineColor = FLinearColor::Yellow;
+	FLinearColor OutlineColor = (AimedMarble == this) ? AimedOutlineColor : NeutralOutlineColor;
 
 	OutlineMaterialInstance->SetVectorParameterValue("OutlineColor", OutlineColor);
 }
@@ -208,11 +243,20 @@ void ABaseMarble::RenderInfoGroup()
 	StatusLabel->SetVisibility(ShouldRender);
 }
 
-void ABaseMarble::EndTurn()
+void ABaseMarble::GetReadyForNewTurn()
 {
 	ReadyToLaunch = true;
+}
+
+void ABaseMarble::CleanUpForEndTurn()
+{
 	CanUseAbility = false;
 	TakingTurn = false;
+}
+
+void ABaseMarble::EndTurn()
+{
+	CleanUpForEndTurn();
 	F_OnStopActing.Broadcast(this);
 }
 
@@ -253,3 +297,61 @@ void ABaseMarble::AddToGameState()
 	else
 		TurnBasedGameState->PlayerMarblesActable.Add(this, false);
 }
+
+
+FVector ABaseMarble::GetRandomVectorOnPlane(FVector Normal)
+{
+	Normal.Normalize();
+
+	// Find a perpendicular vector by crossing Normal with an arbitrary axis (Up or Right)
+	FVector ArbitraryNonParallelAxis = FMath::IsNearlyEqual(FMath::Abs(Normal.Z), 1.0f, 0.1f) ? FVector::RightVector : FVector::UpVector;
+	FVector Perpendicular = Normal ^ ArbitraryNonParallelAxis; // cross product 
+	Perpendicular.Normalize();
+	
+	float RandomAngle = FMath::RandRange(0.0f, 360.0f);
+
+	FVector RandomVector = Perpendicular.RotateAngleAxis(RandomAngle, Normal);
+
+	return RandomVector;
+}
+
+void ABaseMarble::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// Handle only marble on marble for now
+	if (not OtherActor->IsA<ABaseMarble>())
+		return;
+
+	// Combat only happens between enemies
+	bool SameTeam = OtherActor->IsA<ABaseEnemy>() == IsA<ABaseEnemy>();
+	if (SameTeam)
+		return;
+	
+	
+	// // print self and self velocity
+	UE_LOG(LogTemp, Warning, TEXT("Self: %s"), *GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("HitComponent: %s"), *HitComponent->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName());
+	//
+	// // print other and other's velocity
+	UE_LOG(LogTemp, Warning, TEXT("Self Velocity: %s"), *PhysicsMesh->GetPhysicsLinearVelocity().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Other Velocity: %s"), *OtherComp->GetPhysicsLinearVelocity().ToString());
+
+	if (CollisionParticle)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), CollisionParticle, Hit.ImpactPoint);
+	}
+
+	FVector TargetDirn = -Hit.ImpactNormal;
+	float Damage = CalculateDamage(LastVelocity, TargetDirn);
+	UE_LOG(LogTemp, Warning, TEXT("%s deals %f Damage to %s"), *GetName(), Damage, *OtherActor->GetName());
+}
+
+float ABaseMarble::CalculateDamage(FVector Velocity, FVector TargetDirn)
+{
+	// get velocity along the direction of the target
+	float ContributingSpeed = FVector::DotProduct(Velocity, TargetDirn);
+	float Damage = 0.5f * FMath::Pow((ContributingSpeed / 100.0), 2.0);
+	return Damage;
+}
+

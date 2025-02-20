@@ -14,6 +14,7 @@ EStateTreeRunStatus UThirdPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 	PlayerController->FIA_Move.AddDynamic(this, &UThirdPersonMarbleCenteredTask::CameraMovement);
 	PlayerController->FIA_Escape.AddDynamic(this, &UThirdPersonMarbleCenteredTask::ToThirdPersonFreeCameraTask);
 	PlayerController->FIA_Toggle.AddDynamic(this, &UThirdPersonMarbleCenteredTask::ToFirstPersonMarbleCenteredTask);
+	UE_LOG(LogTemp, Log, TEXT("UThirdPersonMarbleCenteredTask::EnterState"));
 	PlayerController->FIA_MainAction.AddDynamic(this, &UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask);
 	
 	PlayerController->FPossess_Updated.Broadcast(

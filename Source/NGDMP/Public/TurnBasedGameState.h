@@ -69,4 +69,7 @@ private:
 
 	UFUNCTION()
 	void MarbleEndTurn(ABaseMarble* ActingMarble);
+
+	UFUNCTION()
+	void EndTurnWrapper(bool bInput);
 };
