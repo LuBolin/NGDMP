@@ -24,11 +24,19 @@ void UCombatComponent::BeginPlay()
 }
 
 
-void UCombatComponent::TakeDamage(float Damage)
+void UCombatComponent::TakeDamage(float Damage, AActor* Source)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Taking %f damage"), Damage);
 	if (Damage <= 0.f || CurrentHealth <= 0.f)
 		return;
+	
+	if (Source)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s is taking %f damage from %s"), *GetOwner()->GetName(), Damage, *Source->GetName());
+	} else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Taking %f damage"), Damage);	
+	}
+	
 
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
 

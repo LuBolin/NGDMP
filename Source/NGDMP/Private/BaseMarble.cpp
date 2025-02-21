@@ -58,8 +58,12 @@ void ABaseMarble::BeginPlay()
 	MasterPlayerController->FPossess_Updated.AddDynamic(this, &ABaseMarble::PossessUpdateOutlineMaterialInstance);
 
 	PhysicsMesh->OnComponentHit.AddDynamic(this, &ABaseMarble::OnPhysicsHit);
+	CombatComponent->OnDeath.AddDynamic(this, &ABaseMarble::Die);
 	
-	ReadyToLaunch = true;
+	// Game State will set this to true when it is the marble's turn
+	ReadyToLaunch = false;
+
+	bDead = false;
 
 	AddToGameState();
 }
@@ -68,6 +72,9 @@ void ABaseMarble::BeginPlay()
 void ABaseMarble::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bDead)
+		return;
 	
 	UpdateStatusValues();
 	
@@ -169,8 +176,7 @@ void ABaseMarble::InitOutlineMaterialInstance()
 	
 	OutlineMaterialInstance = OutlineMesh->CreateAndSetMaterialInstanceDynamicFromMaterial(0, OutlineMaterial);
 	
-	FLinearColor Black = FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	OutlineMaterialInstance->SetVectorParameterValue("OutlineColor", Black);
+	OutlineMaterialInstance->SetVectorParameterValue("OutlineColor", NeutralOutlineColor);
 	
 	OutlineMesh->SetOverlayMaterial(OutlineMaterialInstance);
 }
@@ -189,9 +195,9 @@ void ABaseMarble::PossessUpdateOutlineMaterialInstance(ABaseMarble* PossessedMar
 {
 	bPossessed = PossessedMarble == this;
 	
-	FLinearColor OutlineColor = FLinearColor::Black;
+	FLinearColor OutlineColor = NeutralOutlineColor;
 	if (bPossessed)
-		OutlineColor = FLinearColor::Green;
+		OutlineColor = PossessedOutlineColor;
 
 	OutlineMaterialInstance->SetVectorParameterValue("OutlineColor", OutlineColor);
 }
@@ -250,6 +256,7 @@ void ABaseMarble::GetReadyForNewTurn()
 
 void ABaseMarble::CleanUpForEndTurn()
 {
+	ReadyToLaunch = false;
 	CanUseAbility = false;
 	TakingTurn = false;
 }
@@ -291,7 +298,7 @@ void ABaseMarble::AddToGameState()
 	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
 	if (not TurnBasedGameState)
 		return;
-
+		
 	if (IsA<ABaseEnemy>())
 		TurnBasedGameState->EnemyActorsActable.Add(Cast<ABaseEnemy>(this), false);
 	else
@@ -320,9 +327,11 @@ void ABaseMarble::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 	// Handle only marble on marble for now
 	if (not OtherActor->IsA<ABaseMarble>())
 		return;
+	
+	ABaseMarble *OtherMarble = Cast<ABaseMarble>(OtherActor);
 
 	// Combat only happens between enemies
-	bool SameTeam = OtherActor->IsA<ABaseEnemy>() == IsA<ABaseEnemy>();
+	bool SameTeam = OtherMarble->IsA<ABaseEnemy>() == IsA<ABaseEnemy>();
 	if (SameTeam)
 		return;
 	
@@ -336,7 +345,21 @@ void ABaseMarble::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 	// // print other and other's velocity
 	UE_LOG(LogTemp, Warning, TEXT("Self Velocity: %s"), *PhysicsMesh->GetPhysicsLinearVelocity().ToString());
 	UE_LOG(LogTemp, Warning, TEXT("Other Velocity: %s"), *OtherComp->GetPhysicsLinearVelocity().ToString());
+	
+	// only deal damage if LastVelocity moves self closer to other
+	// aka they are in the same half space
+	bool bDealDamage = false;
+	if (not LastVelocity.IsNearlyZero())
+	{
+		FVector SelfToOther = OtherMarble->GetActorLocation() - GetActorLocation();
+		float Projection = FVector::DotProduct(LastVelocity, SelfToOther);
+		if (Projection > 0)
+			bDealDamage = true;
+	}
 
+	if (not bDealDamage)
+		return;
+	
 	if (CollisionParticle)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), CollisionParticle, Hit.ImpactPoint);
@@ -344,7 +367,8 @@ void ABaseMarble::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 
 	FVector TargetDirn = -Hit.ImpactNormal;
 	float Damage = CalculateDamage(LastVelocity, TargetDirn);
-	UE_LOG(LogTemp, Warning, TEXT("%s deals %f Damage to %s"), *GetName(), Damage, *OtherActor->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("%s tries to deal %f Damage to %s"), *GetName(), Damage, *OtherMarble->GetName());
+	OtherMarble->CombatComponent->TakeDamage(Damage, this);
 }
 
 float ABaseMarble::CalculateDamage(FVector Velocity, FVector TargetDirn)
@@ -355,3 +379,19 @@ float ABaseMarble::CalculateDamage(FVector Velocity, FVector TargetDirn)
 	return Damage;
 }
 
+void ABaseMarble::Die()
+{
+	bDead = true;
+	UE_LOG(LogTemp, Warning, TEXT("%s has died"), *GetName());
+	// float up to simulate a ghost
+	PhysicsMesh->SetSimulatePhysics(false);
+	PhysicsMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PhysicsMesh->SetVisibility(false);
+	StatusLabel->SetVisibility(false);
+	HealthBar->SetVisibility(false);
+	OutlineMesh->SetVisibility(false);
+	
+	FVector NewLocation = GetActorLocation();
+	NewLocation.Z += 10.0f * Radius;
+	SetActorLocation(NewLocation);
+}

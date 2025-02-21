@@ -2,6 +2,7 @@
 
 #include "PrimaryHUD.h"
 #include "MasterPlayerController.h"
+#include "TurnBasedGameState.h"
 
 void UPrimaryHUD::NativeConstruct()
 {
@@ -11,6 +12,19 @@ void UPrimaryHUD::NativeConstruct()
 	AMasterPlayerController* MasterPlayerController = AMasterPlayerController::Instance;
 	MasterPlayerController->FPossess_Updated.AddDynamic(this, &UPrimaryHUD::SetMarble);
 	MasterPlayerController->FState_Updated.AddDynamic(this, &UPrimaryHUD::UpdateStateLabel);
+
+	AGameStateBase* GameState = GetWorld()->GetGameState();
+	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
+	if (not TurnBasedGameState)
+		return;
+	
+	// iterate all enemy marble, and bind their onDeath to 
+	for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
+	{
+		Enemy.Key->CombatComponent->OnDeath.AddDynamic(this, &UPrimaryHUD::SyncEnemyCount);
+	}
+
+	SyncEnemyCount();
 	
 	SetMarble(nullptr);
 }
@@ -27,9 +41,6 @@ void UPrimaryHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		AnimalName->SetText(FText::FromString(Marble->AnimalDataAsset->AnimalName));
 		AbilityName->SetText(FText::FromString(Marble->AnimalDataAsset->AbilityName));
 		AbilityDescription->SetText(FText::FromString(Marble->AnimalDataAsset->AbilityDescription));
-		// AnimalName->SetText(Marble->AnimalDataAsset->AnimalName);
-		// AbilityName->SetText(Marble->AnimalDataAsset->AbilityName);
-		// AbilityDescription->SetText(Marble->AnimalDataAsset->AbilityDescription);
 		
 		CanUseAbility->SetText(FText::FromString(Marble->CanUseAbility ? "Yes" : "No"));
 	} else // not possessing a marble
@@ -46,4 +57,22 @@ void UPrimaryHUD::SetMarble(ABaseMarble* InMarble)
 void UPrimaryHUD::UpdateStateLabel(FString InStateName)
 {
 	PlayerState->SetText(FText::FromString(InStateName));
+}
+
+void UPrimaryHUD::SyncEnemyCount()
+{
+	AGameStateBase* GameState = GetWorld()->GetGameState();
+	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
+	if (not TurnBasedGameState)
+		return;
+	
+	int32 Count = 0;
+	for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
+	{
+		if (not Enemy.Key->bDead)
+			Count++;
+	}
+
+	// X enemies left
+	EnemyCount->SetText(FText::FromString(FString::FromInt(Count) + " enemies left"));
 }

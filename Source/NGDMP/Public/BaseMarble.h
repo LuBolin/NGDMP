@@ -73,8 +73,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UCombatComponent* CombatComponent;
 	
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly)
 	bool bPossessed = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bDead = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UAnimalDataAsset* AnimalDataAsset;
@@ -113,6 +116,12 @@ protected:
 
 	UPROPERTY()
 	FLinearColor AimedOutlineColor = FLinearColor::Yellow;
+	
+	UPROPERTY()
+	FLinearColor PossessedOutlineColor = FLinearColor::Green;
+
+	UFUNCTION()
+	void Die();
 	
 private:
 	UPROPERTY()

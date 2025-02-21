@@ -15,28 +15,20 @@
   <component name="ChangeListManager">
     <list default="true" id="0758d489-4065-4dd5-b510-72dd782bccfa" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.NGDMP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.NGDMP/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vsconfig" beforeDir="false" afterPath="$PROJECT_DIR$/.vsconfig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Common/GM_Base.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Common/GM_Base.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Levels/Sandbox.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Levels/Sandbox.umap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/BP_Base_Marble.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/BP_Base_Marble.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/Enemy/DummyEnemy.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/Enemy/DummyEnemy.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/M_Outline.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/M_Outline.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/MarbleInstances/BP_Cow_Marble.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/MarbleInstances/BP_Cow_Marble.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/MarbleInstances/BP_Goat_Marble.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/MarbleInstances/BP_Goat_Marble.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/PM_DefaultMarblePhysicsMaterlal.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/PM_DefaultMarblePhysicsMaterlal.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/BP_MasterPawn.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Player/BP_MasterPawn.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/PC_MasterController.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Player/PC_MasterController.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NGDMP.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/NGDMP.uproject" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/NGDMP.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/NGDMP.Build.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Marble/Enemy/DummyData.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Marble/Enemy/DummyData.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NGDMP/Player/HB_HUD.uasset" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/BaseEnemy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/BaseEnemy.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/ThirdPersonFreeCameraTask.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/ThirdPersonFreeCameraTask.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/ThirdPersonMarbleCenteredTask.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/ThirdPersonMarbleCenteredTask.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/CombatComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/CombatComponent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/HealthBar.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/HealthBar.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/PrimaryHUD.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/PrimaryHUD.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/TurnBasedGameState.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/TurnBasedGameState.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/BaseEnemy.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/BaseEnemy.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/BaseMarble.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/BaseMarble.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/CombatComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/CombatComponent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/MasterPlayerController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/MasterPlayerController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/PrimaryHUD.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/PrimaryHUD.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/TurnBasedGameState.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/TurnBasedGameState.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -119,9 +111,12 @@
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/UMG/Public/Components/CheckBox.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.4/Engine/Source/Runtime/UMG/Public/Components/ProgressBar.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.5/Engine/Source/Programs/AutomationTool/IOS/WriteIniValueToPlist.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.5/Engine/Source/Programs/Shared/EpicGames.Core/ExceptionUtils.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.5/Engine/Source/Programs/Shared/EpicGames.UHT/Exporters/CodeGen/UhtHeaderCodeGeneratorCppFile.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.5/Engine/Source/Runtime/Core/Public/Templates/Tuple.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/HitResult.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.5/Engine/Source/Runtime/Engine/Classes/GameFramework/Actor.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../Epic Games/UE_5.5/Engine/Source/Runtime/Engine/Private/Actor.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/NGDMP/Private/AnimalDataAsset.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/NGDMP/Private/CombatComponent.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -158,7 +153,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
+    "settings.editor.selected.configurable": "UnrealLinkOptionsId",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -687,6 +682,8 @@
       <workItem from="1736828827632" duration="10559000" />
       <workItem from="1737429181579" duration="11772000" />
       <workItem from="1740018832610" duration="16442000" />
+      <workItem from="1740071301814" duration="1908000" />
+      <workItem from="1740118107791" duration="8005000" />
     </task>
     <servers />
   </component>
@@ -696,5 +693,9 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

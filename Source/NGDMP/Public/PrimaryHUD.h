@@ -42,6 +42,9 @@ protected:
 	
 	UPROPERTY(meta=(BindWidget))
 	UVerticalBox* PossessedMarbleInfo;
+	
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* EnemyCount;
 
 private:
 	UFUNCTION()
@@ -49,4 +52,7 @@ private:
 
 	UFUNCTION()
 	void UpdateStateLabel(FString InStateName);
+	
+	UFUNCTION()
+	void SyncEnemyCount();
 };

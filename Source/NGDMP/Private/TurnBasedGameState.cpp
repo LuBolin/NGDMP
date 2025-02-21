@@ -42,11 +42,20 @@ void ATurnBasedGameState::EndTurn()
 void ATurnBasedGameState::BeginPlayerTurn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player turn started"));
+	// log size of PlayerMablelsActable
+	UE_LOG(LogTemp, Warning, TEXT("PlayerMarblesActable size: %d"), PlayerMarblesActable.Num());
 	for (auto& Marble : PlayerMarblesActable)
 	{
-		Marble.Value = true;
-		Marble.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::MarbleEndTurn);
-		Marble.Key->GetReadyForNewTurn();
+		UE_LOG(LogTemp, Warning, TEXT("%s is dead? %s"), *Marble.Key->GetName(), Marble.Key->bDead ? TEXT("true") : TEXT("false"));
+		if (Marble.Key->bDead)
+		{
+			Marble.Value = false;
+		} else
+		{
+			Marble.Value = true;
+			Marble.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::MarbleEndTurn);
+			Marble.Key->GetReadyForNewTurn();	
+		}
 	}
 }
 
@@ -55,9 +64,15 @@ void ATurnBasedGameState::BeginEnemyTurn()
 	UE_LOG(LogTemp, Warning, TEXT("Enemy turn started"));
 	for (auto& Enemy : EnemyActorsActable)
 	{
-		Enemy.Value = true;
-		Enemy.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::EnemyActorEndTurn);
-		Enemy.Key->GetReadyForNewTurn();
+		if (Enemy.Key->bDead)
+		{
+			Enemy.Value = false;
+		} else
+		{
+			Enemy.Value = true;
+			Enemy.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::EnemyActorEndTurn);
+			Enemy.Key->GetReadyForNewTurn();	
+		}
 	}
 	EnemyActorStartTurn();
 }
@@ -68,11 +83,19 @@ void ATurnBasedGameState::EnemyActorStartTurn()
 	// if no enemy can act, end the turn
 	for (auto& Enemy : EnemyActorsActable)
 	{
-		if (Enemy.Value)
+		ABaseEnemy* CurrentEnemy = Enemy.Key;
+		bool CanAct = Enemy.Value;
+		if (CanAct)
 		{
-			Enemy.Key->Act();
-			Enemy.Value = false;
-			return;
+			if (CurrentEnemy->bDead)
+			{
+				Enemy.Value = false;
+			} else
+			{
+				Enemy.Key->Act();
+				Enemy.Value = false;
+				return;
+			}
 		}
 	}
 	EndTurn();

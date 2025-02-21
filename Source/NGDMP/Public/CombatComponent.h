@@ -25,9 +25,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void TakeDamage(float Damage);
+	void TakeDamage(float Damage, AActor* Source = nullptr);
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void Heal(float Amount);
@@ -41,11 +41,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	float CurrentHealth;
 
-protected:
-	
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnHealthChangedDelegate OnHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeathDelegate OnDeath;
+
 };

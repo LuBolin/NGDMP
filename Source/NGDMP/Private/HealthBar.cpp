@@ -3,9 +3,16 @@
 
 #include "HealthBar.h"
 
+#include "BaseEnemy.h"
+
 void UHealthBar::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	if (CombatComponent->GetOwner()->IsA<ABaseEnemy>())
+	{
+		HealthBar->SetFillColorAndOpacity(FLinearColor::Red);
+	}
 }
 
 void UHealthBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
