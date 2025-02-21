@@ -292,9 +292,6 @@ void ABaseMarble::InitComponents()
 void ABaseMarble::AddToGameState()
 {
 	AGameStateBase* GameState = GetWorld()->GetGameState();
-	if (not GameState)
-		return;
-	
 	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
 	if (not TurnBasedGameState)
 		return;

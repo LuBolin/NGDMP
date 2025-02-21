@@ -45,6 +45,9 @@ protected:
 	
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* EnemyCount;
+	
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* PickupObjectivesCount;
 
 private:
 	UFUNCTION()
@@ -55,4 +58,7 @@ private:
 	
 	UFUNCTION()
 	void SyncEnemyCount();
+	
+	UFUNCTION()
+	void SyncPickupObjectiveCount();
 };

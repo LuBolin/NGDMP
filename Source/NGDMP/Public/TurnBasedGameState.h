@@ -52,7 +52,7 @@ public:
 	TMap<class ABaseEnemy*, bool> EnemyActorsActable;
 
 	UPROPERTY()
-	TArray<class ABaseMarble*> DeadMarbles;
+	TArray<class APickupActor*> PickupObjectives;
 	
 private:
 	UFUNCTION()

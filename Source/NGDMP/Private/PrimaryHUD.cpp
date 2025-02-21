@@ -2,6 +2,7 @@
 
 #include "PrimaryHUD.h"
 #include "MasterPlayerController.h"
+#include "PickupActor.h"
 #include "TurnBasedGameState.h"
 
 void UPrimaryHUD::NativeConstruct()
@@ -18,13 +19,21 @@ void UPrimaryHUD::NativeConstruct()
 	if (not TurnBasedGameState)
 		return;
 	
-	// iterate all enemy marble, and bind their onDeath to 
 	for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Binding to %s"), *Enemy.Key->GetName());	
 		Enemy.Key->CombatComponent->OnDeath.AddDynamic(this, &UPrimaryHUD::SyncEnemyCount);
 	}
 
 	SyncEnemyCount();
+
+	
+	for (APickupActor* Pickup : TurnBasedGameState->PickupObjectives)
+	{
+		Pickup->OnPickup.AddDynamic(this, &UPrimaryHUD::SyncPickupObjectiveCount);
+	}
+	
+	SyncPickupObjectiveCount();
 	
 	SetMarble(nullptr);
 }
@@ -75,4 +84,21 @@ void UPrimaryHUD::SyncEnemyCount()
 
 	// X enemies left
 	EnemyCount->SetText(FText::FromString(FString::FromInt(Count) + " enemies left"));
+}
+
+void UPrimaryHUD::SyncPickupObjectiveCount()
+{
+	AGameStateBase* GameState = GetWorld()->GetGameState();
+	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
+	if (not TurnBasedGameState)
+		return;
+	
+	int32 Count = 0;
+	for (APickupActor* Pickup : TurnBasedGameState->PickupObjectives)
+	{
+		if (not Pickup->bCollected)
+			Count++;
+	}
+
+	PickupObjectivesCount->SetText(FText::FromString(FString::FromInt(Count) + " pickups left"));
 }
