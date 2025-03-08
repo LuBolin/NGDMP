@@ -5,6 +5,7 @@
 #include "MasterPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "StateTreeExecutionContext.h"
+#include "TurnBasedGameState.h"
 
 // EnterState
 EStateTreeRunStatus UThirdPersonMarbleCenteredTask::EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
@@ -165,9 +166,25 @@ void UThirdPersonMarbleCenteredTask::ToThirdPersonFreeCameraTask(bool bInspect)
 
 void UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask(bool bActionPressed)
 {
-	if (bActionPressed and bCenteredOnMarble and PlayerController->PossessedMarble->ReadyToLaunch)
+	if (bActionPressed and bCenteredOnMarble and PlayerController->PossessedMarble->bReadyToLaunch)
 	{
-		PlayerController->SendStateTreeEventByTagString("Action.PrepareLaunch");
+		AGameStateBase* GameState = GetWorld()->GetGameState();
+		ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
+		if (!TurnBasedGameState)
+			return;
+		// check if gamestate has a current actor
+		if (TurnBasedGameState->CurrentActor)
+		{
+			// it is still actor's name's turn. \n please wait until all marbles stop moving
+			FString Message = FString::Printf(TEXT("It is still %s's turn. \nPlease wait until all marbles stop moving"),
+				*TurnBasedGameState->CurrentActor->GetName());
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Message);
+			UE_LOG(LogTemp, Display, TEXT("%s"), *Message);
+		}
+		else
+		{
+			PlayerController->SendStateTreeEventByTagString("Action.PrepareLaunch");
+		}		
 	}
 }
 

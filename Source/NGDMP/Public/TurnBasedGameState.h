@@ -54,15 +54,17 @@ public:
 	UPROPERTY()
 	TArray<class APickupActor*> PickupObjectives;
 	
+	UPROPERTY()
+	ABaseMarble* CurrentActor = nullptr;
+	
+	virtual void Tick(float DeltaTime) override;
+	
 private:
 	UFUNCTION()
 	void BeginPlayerTurn();
 	
 	UFUNCTION()
 	void BeginEnemyTurn();
-
-	UPROPERTY()
-	ABaseEnemy* CurrentActingEnemy;
 	
 	UFUNCTION()
 	void EnemyActorStartTurn();
@@ -75,4 +77,15 @@ private:
 
 	UFUNCTION()
 	void EndTurnWrapper(bool bInput);
+
+	UFUNCTION()
+	void CheckMarblesAtRest();
+
+	UPROPERTY()
+	float RestDuration = 0.0f;
+
+	UPROPERTY()
+	float RestGoal = 0.0f;
+
+	
 };

@@ -7,6 +7,8 @@
 #include "Components/TextBlock.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/VerticalBox.h"
+#include "Components/GridPanel.h"
+#include "Components/HorizontalBox.h"
 #include "PrimaryHUD.generated.h"
 
 /**
@@ -23,7 +25,7 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
 	UPROPERTY()
-	ABaseMarble* Marble;
+	ABaseMarble* PossessedMarble;
 
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* PlayerState;
@@ -44,6 +46,9 @@ protected:
 	UVerticalBox* PossessedMarbleInfo;
 	
 	UPROPERTY(meta=(BindWidget))
+	UGridPanel* FriendlyMarbleInfo;
+	
+	UPROPERTY(meta=(BindWidget))
 	UTextBlock* EnemyCount;
 	
 	UPROPERTY(meta=(BindWidget))
@@ -61,4 +66,10 @@ private:
 	
 	UFUNCTION()
 	void SyncPickupObjectiveCount();
+	
+	UFUNCTION()
+	void SyncMarblesStatus();
+
+	UFUNCTION()
+	UTextBlock* CreateMarbleInfoBlock(FString Data, FLinearColor Color);
 };

@@ -2,13 +2,12 @@
 
 
 #include "TurnBasedGameState.h"
-
 #include "MasterPlayerController.h"
 
 ATurnBasedGameState::ATurnBasedGameState()
 {
 	CurrentTurn = ETurnState::PLAYER_TURN;
-	CurrentActingEnemy = nullptr;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 // begin play
@@ -105,9 +104,9 @@ void ATurnBasedGameState::EnemyActorEndTurn(ABaseMarble* ActingEnemy)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *ActingEnemy->GetName());
 	ActingEnemy->F_OnStopActing.Clear();
-	FTimerHandle EnemyActingTimerHandle;
-	float ArbitraryDelay = 0.5f;
-	GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
+	// FTimerHandle EnemyActingTimerHandle;
+	// float ArbitraryDelay = 0.5f;
+	// GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
 }
 
 void ATurnBasedGameState::MarbleEndTurn(ABaseMarble* ActingMarble)
@@ -142,4 +141,62 @@ void ATurnBasedGameState::EndTurnWrapper(bool bInput)
 		Marble.Key->F_OnStopActing.Clear();
 	}
 	EndTurn();
+}
+
+void ATurnBasedGameState::CheckMarblesAtRest()
+{
+	if (not CurrentActor)
+	{
+		RestDuration = 0.0f;
+		return;
+	}
+	
+	// if all marbles are at rest, increment RestDuration by delta
+	// else reset the value
+	bool AllMarblesAtRest = true;
+	// use get keys to retrieve all marbles
+	TArray<ABaseMarble*> Marbles;
+	PlayerMarblesActable.GetKeys(Marbles);
+	for (ABaseMarble* Marble : Marbles)
+	{
+		if (Marble->GetVelocity().Size() > 0.0f)
+		{
+			AllMarblesAtRest = false;
+			break;
+		}
+	}
+	TArray<ABaseEnemy*> EnemyMarbles;
+	EnemyActorsActable.GetKeys(EnemyMarbles);
+	for (ABaseEnemy* Enemy : EnemyMarbles)
+	{
+		if (Enemy->GetVelocity().Size() > 0.0f)
+		{
+			AllMarblesAtRest = false;
+			break;
+		}
+	}
+	if (AllMarblesAtRest)
+	{
+		RestDuration += GetWorld()->GetDeltaSeconds();
+		if (RestDuration > 1.0f)
+		{
+			CurrentActor = nullptr;
+			RestDuration = 0.0f;
+			if (CurrentTurn == ETurnState::ENEMY_TURN)
+			{
+				FTimerHandle EnemyActingTimerHandle;
+				float ArbitraryDelay = 0.5f;
+				GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
+			}
+		}
+	} else
+	{
+		RestDuration = 0.0f;
+	}
+}
+
+
+void ATurnBasedGameState::Tick(float DeltaTime)
+{
+	CheckMarblesAtRest();
 }

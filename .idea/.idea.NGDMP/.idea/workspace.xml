@@ -16,11 +16,7 @@
     <list default="true" id="0758d489-4065-4dd5-b510-72dd782bccfa" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.NGDMP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.NGDMP/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/NGDMP/Levels/Sandbox.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/Levels/Sandbox.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/NGDMP/UI/WB_PlayerPrimaryHUD.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NGDMP/UI/WB_PlayerPrimaryHUD.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/BaseMarble.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/PrimaryHUD.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/PrimaryHUD.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/PrimaryHUD.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/PrimaryHUD.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Public/TurnBasedGameState.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Public/TurnBasedGameState.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/NGDMP/Private/BaseEnemy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/NGDMP/Private/BaseEnemy.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -676,7 +672,7 @@
       <workItem from="1740018832610" duration="16442000" />
       <workItem from="1740071301814" duration="1908000" />
       <workItem from="1740118107791" duration="9940000" />
-      <workItem from="1740131345859" duration="1346000" />
+      <workItem from="1740131345859" duration="4922000" />
     </task>
     <servers />
   </component>

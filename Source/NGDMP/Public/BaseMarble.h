@@ -23,25 +23,35 @@ class NGDMP_API ABaseMarble : public APawn
 
 public:
 	ABaseMarble();
+
+	UPROPERTY()
+	float Radius = 0.0f;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bReadyToLaunch = false;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bCanUseAbility = false;
 	
+	UPROPERTY(BlueprintReadWrite)
+	bool bTakingTurn = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bPossessed = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bDead = false;
+
+
+		
 	// Returns the plane the marble is on
 	UFUNCTION(BlueprintCallable)
 	FVector GetPlaneNormal();
 
 	UFUNCTION()
 	void Launch(FVector Direction, float Force, float BlendDelay);
-	
-	UPROPERTY()
-	float Radius = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite)
-	bool ReadyToLaunch = false;
 
-	UPROPERTY(BlueprintReadWrite)
-	bool CanUseAbility = false;
-	
-	UPROPERTY(BlueprintReadWrite)
-	bool TakingTurn = false;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* PhysicsMesh;
@@ -72,12 +82,6 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UCombatComponent* CombatComponent;
-	
-	UPROPERTY(BlueprintReadOnly)
-	bool bPossessed = false;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bDead = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UAnimalDataAsset* AnimalDataAsset;

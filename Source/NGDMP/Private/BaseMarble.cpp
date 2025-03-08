@@ -61,7 +61,7 @@ void ABaseMarble::BeginPlay()
 	CombatComponent->OnDeath.AddDynamic(this, &ABaseMarble::Die);
 	
 	// Game State will set this to true when it is the marble's turn
-	ReadyToLaunch = false;
+	bReadyToLaunch = false;
 
 	bDead = false;
 
@@ -158,9 +158,12 @@ void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, LaunchVelocity]()
 	{
 		PhysicsMesh->SetPhysicsLinearVelocity(LaunchVelocity);
-		TakingTurn = true;
-		ReadyToLaunch = false;
-		CanUseAbility = true;
+		bTakingTurn = true;
+		bReadyToLaunch = false;
+		bCanUseAbility = true;
+		AGameStateBase* GameState = GetWorld()->GetGameState();
+		ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
+		TurnBasedGameState->CurrentActor = this;
 	}, BlendDelay, false);
 }
 
@@ -205,7 +208,7 @@ void ABaseMarble::PossessUpdateOutlineMaterialInstance(ABaseMarble* PossessedMar
 void ABaseMarble::UpdateStatusValues()
 {
 	bool Awake = PhysicsMesh->IsAnyRigidBodyAwake();
-	if (TakingTurn and not Awake) // physics has been put to sleep due to Physics Material's Sleep Threshold
+	if (bTakingTurn and not Awake) // physics has been put to sleep due to Physics Material's Sleep Threshold
 	{
 		// Marble has stopped
 		EndTurn();
@@ -214,10 +217,33 @@ void ABaseMarble::UpdateStatusValues()
 
 void ABaseMarble::SyncWithVelocityDirection()
 {
-	FVector Velocity = PhysicsMesh->GetPhysicsLinearVelocity();
-	if (Velocity.Size() > 10.0f) // arbitrary threshold to avoid jittering, to be tuned later
+	FVector Velocity = GetVelocity();
+	if (Velocity.Size() > 1.0f) // arbitrary threshold to avoid jittering
 	{
-		SetActorRotation(Velocity.Rotation());
+		FVector StartLocation = GetActorLocation();
+		FVector Down = FVector(0.0f, 0.0f, -1.0f);
+		constexpr float GroundCheckDistance = 1.0f;
+		FVector EndLocation = StartLocation + (Radius + GroundCheckDistance) * Down;
+		FHitResult HitResult;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult, StartLocation, EndLocation,
+			ECollisionChannel::ECC_Visibility, CollisionParams);
+		bool isGrounded = bHit;
+		FRotator VelRotation;
+		if (isGrounded)
+		{	
+			FVector PlaneNormal = GetPlaneNormal();
+			FVector ProjectedVelocity = FVector::VectorPlaneProject(Velocity, PlaneNormal);
+			VelRotation = ProjectedVelocity.Rotation();
+		} else
+		{
+			VelRotation = Velocity.Rotation();
+		}
+		SetActorRotation(VelRotation);
+		// set AnimalMesh to face the same direction as the marble
+		AnimalMesh->SetWorldRotation(VelRotation);
 	}
 }
 
@@ -232,8 +258,8 @@ void ABaseMarble::RenderInfoGroup()
 	if (ShouldRender)
 	{
 		FString StatusString = "";
-		StatusString += ReadyToLaunch ? "Ready to launch\n" : "Not ready to launch\n";
-		StatusString += CanUseAbility ? "Can use ability\n" : "Cannot use ability\n";
+		StatusString += bReadyToLaunch ? "Ready to launch\n" : "Not ready to launch\n";
+		StatusString += bCanUseAbility ? "Can use ability\n" : "Cannot use ability\n";
 		// StatusString += "Velocity: " + FString::SanitizeFloat(GetVelocity().Size());
 		float LinearVelocity = PhysicsMesh->GetPhysicsLinearVelocity().Size();
 		float AngularVelocity = PhysicsMesh->GetPhysicsAngularVelocityInRadians().Size();
@@ -251,14 +277,23 @@ void ABaseMarble::RenderInfoGroup()
 
 void ABaseMarble::GetReadyForNewTurn()
 {
-	ReadyToLaunch = true;
+	bReadyToLaunch = true;
 }
 
 void ABaseMarble::CleanUpForEndTurn()
 {
-	ReadyToLaunch = false;
-	CanUseAbility = false;
-	TakingTurn = false;
+	bReadyToLaunch = false;
+	bCanUseAbility = false;
+	bTakingTurn = false;
+	
+	// set actor's rotation to be on the normal plane
+	FVector PlaneNormal = GetPlaneNormal();
+	FRotator CurrentRotation = GetActorRotation();
+	FVector CurrentForward = CurrentRotation.Vector();
+	FVector ProjectedForward = FVector::VectorPlaneProject(CurrentForward, PlaneNormal);
+	FRotator NewRotation = ProjectedForward.Rotation();
+	SetActorRotation(NewRotation);
+	AnimalMesh->SetWorldRotation(NewRotation);
 }
 
 void ABaseMarble::EndTurn()
@@ -331,17 +366,6 @@ void ABaseMarble::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 	bool SameTeam = OtherMarble->IsA<ABaseEnemy>() == IsA<ABaseEnemy>();
 	if (SameTeam)
 		return;
-	
-	
-	// // print self and self velocity
-	UE_LOG(LogTemp, Warning, TEXT("Self: %s"), *GetName());
-	// UE_LOG(LogTemp, Warning, TEXT("HitComponent: %s"), *HitComponent->GetName());
-	// UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s"), *OtherActor->GetName());
-	// UE_LOG(LogTemp, Warning, TEXT("OtherComp: %s"), *OtherComp->GetName());
-	//
-	// // print other and other's velocity
-	UE_LOG(LogTemp, Warning, TEXT("Self Velocity: %s"), *PhysicsMesh->GetPhysicsLinearVelocity().ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Other Velocity: %s"), *OtherComp->GetPhysicsLinearVelocity().ToString());
 	
 	// only deal damage if LastVelocity moves self closer to other
 	// aka they are in the same half space
