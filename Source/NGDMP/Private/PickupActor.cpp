@@ -5,6 +5,7 @@
 
 #include "BaseEnemy.h"
 #include "BaseMarble.h"
+#include "MyGameModeBase.h"
 #include "NiagaraFunctionLibrary.h"
 #include "TurnBasedGameState.h"
 
@@ -26,7 +27,7 @@ void APickupActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AddToGameState();
+	AddToGameModeAndState();
 }
 
 void APickupActor::Tick(float DeltaTime)
@@ -55,12 +56,14 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 }
 
 
-void APickupActor::AddToGameState()
+void APickupActor::AddToGameModeAndState()
 {
-	AGameStateBase* GameState = GetWorld()->GetGameState();
-	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-	if (not TurnBasedGameState)
-		return;
-
+	if (not bIsObjective) return;
+	
+	ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+	if (!TurnBasedGameState) return;
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	
 	TurnBasedGameState->PickupObjectives.Add(this);
+	GameMode->PickupObjectives.Add(this);
 }

@@ -59,6 +59,14 @@ public:
 	
 	virtual void Tick(float DeltaTime) override;
 	
+	UFUNCTION()
+	static ATurnBasedGameState* GetInstance()
+	{
+		return Instance;
+	}
+
+	static ATurnBasedGameState* Instance;
+	
 private:
 	UFUNCTION()
 	void BeginPlayerTurn();

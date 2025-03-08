@@ -4,10 +4,13 @@
 #include "TurnBasedGameState.h"
 #include "MasterPlayerController.h"
 
+ATurnBasedGameState* ATurnBasedGameState::Instance = nullptr;
+
 ATurnBasedGameState::ATurnBasedGameState()
 {
 	CurrentTurn = ETurnState::PLAYER_TURN;
 	PrimaryActorTick.bCanEverTick = true;
+	Instance = this;
 }
 
 // begin play

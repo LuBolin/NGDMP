@@ -153,7 +153,7 @@ private:
 	void InitComponents();
 
 	UFUNCTION()
-	void AddToGameState();
+	void AddToGameModeAndState();
 
 	UFUNCTION()
 	void SolvePhysicsSleep();

@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "MasterPlayerController.h"
 #include "NiagaraFunctionLibrary.h"
+#include "MyGameModeBase.h"
 #include "TurnBasedGameState.h"
 
 
@@ -35,6 +36,8 @@ ABaseMarble::ABaseMarble()
 	InfoSpringArm->SetupAttachment(PhysicsMesh);
 	StatusLabel = CreateDefaultSubobject<UTextRenderComponent>(TEXT("StatusLabel"));
 	StatusLabel->SetupAttachment(InfoSpringArm);
+	if (IsA<ABaseEnemy>()) StatusLabel->SetTextRenderColor(FColor::Red);
+	else StatusLabel->SetTextRenderColor(FColor::Green);
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
 	HealthBar->SetWidgetSpace(EWidgetSpace::World);
 	HealthBar->SetCastShadow(false);
@@ -65,7 +68,7 @@ void ABaseMarble::BeginPlay()
 
 	bDead = false;
 
-	AddToGameState();
+	AddToGameModeAndState();
 }
 
 // Called every frame
@@ -161,8 +164,8 @@ void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 		bTakingTurn = true;
 		bReadyToLaunch = false;
 		bCanUseAbility = true;
-		AGameStateBase* GameState = GetWorld()->GetGameState();
-		ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
+		ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+		if (!TurnBasedGameState) return;
 		TurnBasedGameState->CurrentActor = this;
 	}, BlendDelay, false);
 }
@@ -258,20 +261,21 @@ void ABaseMarble::RenderInfoGroup()
 	if (ShouldRender)
 	{
 		FString StatusString = "";
-		StatusString += bReadyToLaunch ? "Ready to launch\n" : "Not ready to launch\n";
-		StatusString += bCanUseAbility ? "Can use ability\n" : "Cannot use ability\n";
-		// StatusString += "Velocity: " + FString::SanitizeFloat(GetVelocity().Size());
-		float LinearVelocity = PhysicsMesh->GetPhysicsLinearVelocity().Size();
-		float AngularVelocity = PhysicsMesh->GetPhysicsAngularVelocityInRadians().Size();
-		StatusString += "Velocity: " + FString::SanitizeFloat(LinearVelocity) + "\n";
-		StatusString += "Angular Velocity: " + FString::SanitizeFloat(AngularVelocity);
+		// StatusString += bReadyToLaunch ? "Ready to launch\n" : "Not ready to launch\n";
+		// StatusString += bCanUseAbility ? "Can use ability\n" : "Cannot use ability\n";
+		// // StatusString += "Velocity: " + FString::SanitizeFloat(GetVelocity().Size());
+		// float LinearVelocity = PhysicsMesh->GetPhysicsLinearVelocity().Size();
+		// float AngularVelocity = PhysicsMesh->GetPhysicsAngularVelocityInRadians().Size();
+		// StatusString += "Velocity: " + FString::SanitizeFloat(LinearVelocity) + "\n";
+		// StatusString += "Angular Velocity: " + FString::SanitizeFloat(AngularVelocity);
+
+		StatusString = AnimalDataAsset->AnimalName; 
 		
 		StatusLabel->SetText(FText::FromString(StatusString));
-		
-		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(OwnLocation, PlayerCameraLocation);
-		StatusLabel->SetWorldRotation(LookAtRotation);
-		HealthBar->SetWorldRotation(LookAtRotation);
 	}
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(OwnLocation, PlayerCameraLocation);
+	StatusLabel->SetWorldRotation(LookAtRotation);
+	HealthBar->SetWorldRotation(LookAtRotation);
 	StatusLabel->SetVisibility(ShouldRender);
 }
 
@@ -324,17 +328,24 @@ void ABaseMarble::InitComponents()
 	HealthBarWidget->SetCombatComponent(CombatComponent);
 }
 
-void ABaseMarble::AddToGameState()
+void ABaseMarble::AddToGameModeAndState()
 {
-	AGameStateBase* GameState = GetWorld()->GetGameState();
-	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-	if (not TurnBasedGameState)
-		return;
-		
+	ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+	if (!TurnBasedGameState) return;
+	
+	AMyGameModeBase* MyGameMode = AMyGameModeBase::GetInstance();
+	
 	if (IsA<ABaseEnemy>())
-		TurnBasedGameState->EnemyActorsActable.Add(Cast<ABaseEnemy>(this), false);
-	else
+	{
+		ABaseEnemy* SelfAsEnemy = Cast<ABaseEnemy>(this);
+		TurnBasedGameState->EnemyActorsActable.Add(SelfAsEnemy, false);
+		MyGameMode->EnemyActors.Add(SelfAsEnemy);
+	} else
+	{
 		TurnBasedGameState->PlayerMarblesActable.Add(this, false);
+		MyGameMode->PlayerMarbles.Add(this);
+	}
+		
 }
 
 

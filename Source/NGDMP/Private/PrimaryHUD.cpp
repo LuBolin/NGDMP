@@ -2,10 +2,9 @@
 
 #include "PrimaryHUD.h"
 #include "MasterPlayerController.h"
+#include "MyGameModeBase.h"
 #include "PickupActor.h"
-#include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
-#include "Components/VerticalBoxSlot.h"
 #include "TurnBasedGameState.h"
 
 void UPrimaryHUD::NativeConstruct()
@@ -17,10 +16,8 @@ void UPrimaryHUD::NativeConstruct()
 	MasterPlayerController->FPossess_Updated.AddDynamic(this, &UPrimaryHUD::SetMarble);
 	MasterPlayerController->FState_Updated.AddDynamic(this, &UPrimaryHUD::UpdateStateLabel);
 
-	AGameStateBase* GameState = GetWorld()->GetGameState();
-	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-	if (not TurnBasedGameState)
-		return;
+	ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+	if (!TurnBasedGameState) return;
 	
 	for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
 	{
@@ -61,6 +58,8 @@ void UPrimaryHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 
 	SyncMarblesStatus();
+
+	SyncObjectives();
 }
 
 void UPrimaryHUD::SetMarble(ABaseMarble* InMarble)
@@ -75,40 +74,36 @@ void UPrimaryHUD::UpdateStateLabel(FString InStateName)
 
 void UPrimaryHUD::SyncEnemyCount()
 {
-	AGameStateBase* GameState = GetWorld()->GetGameState();
-	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-	if (not TurnBasedGameState)
-		return;
-	
-	int32 Count = 0;
-	for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
-	{
-		if (not Enemy.Key->bDead)
-			Count++;
-	}
-
-	// X enemies left
-	EnemyCount->SetText(FText::FromString(FString::FromInt(Count) + " enemies left"));
+	// ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+	// if (!TurnBasedGameState) return;
+	//
+	// int32 Count = 0;
+	// for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
+	// {
+	// 	if (not Enemy.Key->bDead)
+	// 		Count++;
+	// }
+	//
+	// // X enemies left
+	// EnemyCount->SetText(FText::FromString(FString::FromInt(Count) + " enemies left"));
 }
 
 void UPrimaryHUD::SyncPickupObjectiveCount()
 {
-	AGameStateBase* GameState = GetWorld()->GetGameState();
-	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-	if (not TurnBasedGameState)
-		return;
-	
-	int32 Count = 0;
-	for (APickupActor* Pickup : TurnBasedGameState->PickupObjectives)
-	{
-		if (not Pickup->bCollected)
-			Count++;
-	}
-
-	PickupObjectivesCount->SetText(FText::FromString(FString::FromInt(Count) + " pickups left"));
+	// ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+	// if (!TurnBasedGameState) return;
+	//
+	// int32 Count = 0;
+	// for (APickupActor* Pickup : TurnBasedGameState->PickupObjectives)
+	// {
+	// 	if (not Pickup->bCollected)
+	// 		Count++;
+	// }
+	//
+	// PickupObjectivesCount->SetText(FText::FromString(FString::FromInt(Count) + " pickups left"));
 }
 
-UTextBlock* UPrimaryHUD::CreateMarbleInfoBlock(FString Data, FLinearColor Color)
+UTextBlock* UPrimaryHUD::CreateTextBlock(FString Data, FLinearColor Color)
 {
 	UTextBlock* TextBlock = NewObject<UTextBlock>(this);
 	TextBlock->SetText(FText::FromString(Data));
@@ -119,19 +114,17 @@ UTextBlock* UPrimaryHUD::CreateMarbleInfoBlock(FString Data, FLinearColor Color)
 
 void UPrimaryHUD::SyncMarblesStatus()
 {
-	AGameStateBase* GameState = GetWorld()->GetGameState();
-	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-	if (!TurnBasedGameState)
-		return;
+	ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+	if (!TurnBasedGameState) return;
 
 	// array of 4 strings: animal, speed, health. status
 	// add them to the grid panel
 	FriendlyMarbleInfo->ClearChildren();
 	UTextBlock *AnimalText, *SpeedText, *HealthText, *StatusText;
-	AnimalText = CreateMarbleInfoBlock("Animal", FLinearColor::White);
-	SpeedText = CreateMarbleInfoBlock("Speed", FLinearColor::White);
-	HealthText = CreateMarbleInfoBlock("Health", FLinearColor::White);
-	StatusText = CreateMarbleInfoBlock("Status", FLinearColor::White);
+	AnimalText = CreateTextBlock("Animal", FLinearColor::White);
+	SpeedText = CreateTextBlock("Speed", FLinearColor::White);
+	HealthText = CreateTextBlock("Health", FLinearColor::White);
+	StatusText = CreateTextBlock("Status", FLinearColor::White);
 	FriendlyMarbleInfo->AddChildToGrid(AnimalText, 0, 0);
 	FriendlyMarbleInfo->AddChildToGrid(SpeedText, 0, 1);
 	FriendlyMarbleInfo->AddChildToGrid(HealthText, 0, 2);
@@ -148,10 +141,10 @@ void UPrimaryHUD::SyncMarblesStatus()
 
 		FLinearColor FriendlyColor = FLinearColor::Green;
 		FLinearColor InfoTextColor = Marble->bDead ? FLinearColor::Gray : FLinearColor::White;
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(AName, FriendlyColor), row, 0);
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(Speed, InfoTextColor), row, 1);
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(Health, InfoTextColor), row, 2);
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(Status, InfoTextColor), row, 3);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(AName, FriendlyColor), row, 0);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(Speed, InfoTextColor), row, 1);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(Health, InfoTextColor), row, 2);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(Status, InfoTextColor), row, 3);
 		row += 1;
 	}
 
@@ -167,10 +160,22 @@ void UPrimaryHUD::SyncMarblesStatus()
 		
 		FLinearColor EnemyColor = FLinearColor::Red;
 		FLinearColor InfoTextColor = Marble->bDead ? FLinearColor::Gray : FLinearColor::White;
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(AName, EnemyColor), row, 0);
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(Speed, InfoTextColor), row, 1);
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(Health, InfoTextColor), row, 2);
-		FriendlyMarbleInfo->AddChildToGrid(CreateMarbleInfoBlock(Status, InfoTextColor), row, 3);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(AName, EnemyColor), row, 0);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(Speed, InfoTextColor), row, 1);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(Health, InfoTextColor), row, 2);
+		FriendlyMarbleInfo->AddChildToGrid(CreateTextBlock(Status, InfoTextColor), row, 3);
 		row += 1;
 	}
+}
+
+void UPrimaryHUD::SyncObjectives()
+{
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	ObjectivesGrid->ClearChildren();
+	int row = 0;
+	if (GameMode->destroyAllEnemies)
+	{
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock("Destroy Enemies:", FLinearColor::Yellow), row, 0);
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock(GameMode->checkDestroyAllEnemiesProgress(), FLinearColor::Yellow), row, 1);
+	}	
 }

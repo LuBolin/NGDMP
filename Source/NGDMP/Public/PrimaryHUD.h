@@ -48,11 +48,14 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UGridPanel* FriendlyMarbleInfo;
 	
+	// UPROPERTY(meta=(BindWidget))
+	// UTextBlock* EnemyCount;
+	//
+	// UPROPERTY(meta=(BindWidget))
+	// UTextBlock* PickupObjectivesCount;
+
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* EnemyCount;
-	
-	UPROPERTY(meta=(BindWidget))
-	UTextBlock* PickupObjectivesCount;
+	UGridPanel* ObjectivesGrid;
 
 private:
 	UFUNCTION()
@@ -71,5 +74,8 @@ private:
 	void SyncMarblesStatus();
 
 	UFUNCTION()
-	UTextBlock* CreateMarbleInfoBlock(FString Data, FLinearColor Color);
+	UTextBlock* CreateTextBlock(FString Data, FLinearColor Color = FLinearColor::White);
+	
+	UFUNCTION()
+	void SyncObjectives();
 };

@@ -168,10 +168,9 @@ void UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask(bool bActionP
 {
 	if (bActionPressed and bCenteredOnMarble and PlayerController->PossessedMarble->bReadyToLaunch)
 	{
-		AGameStateBase* GameState = GetWorld()->GetGameState();
-		ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-		if (!TurnBasedGameState)
-			return;
+		ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+		if (!TurnBasedGameState) return;
+		
 		// check if gamestate has a current actor
 		if (TurnBasedGameState->CurrentActor)
 		{

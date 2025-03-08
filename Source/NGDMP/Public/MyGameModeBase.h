@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "BaseMarble.h"
+#include "BaseEnemy.h"
+#include "PickupActor.h"
 #include "MyGameModeBase.generated.h"
 
 /**
@@ -16,6 +19,8 @@ class NGDMP_API AMyGameModeBase : public AGameModeBase
 
 
 public:
+	AMyGameModeBase();
+	
 	UFUNCTION()
 	void WinGame();
 	
@@ -26,7 +31,7 @@ public:
 	void RestartGame();
 
 	UPROPERTY(EditAnywhere, Category = "WinCondition")
-	bool destroyAllEnemies = false;
+	bool destroyAllEnemies = true;
 	
 	UPROPERTY(EditAnywhere, Category = "WinCondition")
 	bool collectAllStars = false;
@@ -34,6 +39,34 @@ public:
 	UPROPERTY(EditAnywhere, Category = "WinCondition")
 	bool getAllToEscape = false;
 
+	UPROPERTY()
+	TArray<ABaseMarble*> PlayerMarbles;
+	
+	UPROPERTY()
+	TArray<ABaseEnemy*> EnemyActors;
+
+	UPROPERTY()
+	TArray<APickupActor*> PickupObjectives;
+
+	static FString ObjectiveCompleteMessage;
+	
+	UFUNCTION()
+	static AMyGameModeBase* GetInstance()
+	{
+		return Instance;
+	}
+	
+	static AMyGameModeBase* Instance;
+		
+	UFUNCTION()
+	FString checkDestroyAllEnemiesProgress();
+	
+	// UFUNCTION()
+	// void checkCollectAllStartsProgress();
+	//
+	// UFUNCTION()
+	// void checkGetAllToEscapeProgress();
+	
 protected:
 	UFUNCTION()
 	virtual void BeginPlay() override;
@@ -41,12 +74,4 @@ protected:
 	UFUNCTION()
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	void checkDestroyAllEnemies();
-	
-	UFUNCTION()
-	void checkCollectAllStarts();
-	
-	UFUNCTION()
-	void checkGetAllToEscape();
 };

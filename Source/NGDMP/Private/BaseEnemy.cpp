@@ -23,10 +23,8 @@ void ABaseEnemy::Tick(float DeltaTime)
 	
 void ABaseEnemy::Act()
 {
-	AGameStateBase* GameState = GetWorld()->GetGameState();
-	ATurnBasedGameState* TurnBasedGameState = Cast<ATurnBasedGameState>(GameState);
-	if (not TurnBasedGameState)
-		return;
+	ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
+	if (!TurnBasedGameState) return;
 
 	TurnBasedGameState->CurrentActor = this;
 	
