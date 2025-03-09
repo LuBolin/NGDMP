@@ -55,7 +55,7 @@ void ATurnBasedGameState::BeginPlayerTurn()
 		} else
 		{
 			Marble.Value = true;
-			Marble.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::MarbleEndTurn);
+			Marble.Key->FOnStopActing.AddDynamic(this, &ATurnBasedGameState::MarbleEndTurn);
 			Marble.Key->GetReadyForNewTurn();	
 		}
 	}
@@ -72,7 +72,7 @@ void ATurnBasedGameState::BeginEnemyTurn()
 		} else
 		{
 			Enemy.Value = true;
-			Enemy.Key->F_OnStopActing.AddDynamic(this, &ATurnBasedGameState::EnemyActorEndTurn);
+			Enemy.Key->FOnStopActing.AddDynamic(this, &ATurnBasedGameState::EnemyActorEndTurn);
 			Enemy.Key->GetReadyForNewTurn();	
 		}
 	}
@@ -106,7 +106,7 @@ void ATurnBasedGameState::EnemyActorStartTurn()
 void ATurnBasedGameState::EnemyActorEndTurn(ABaseMarble* ActingEnemy)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *ActingEnemy->GetName());
-	ActingEnemy->F_OnStopActing.Clear();
+	ActingEnemy->FOnStopActing.Clear();
 	// FTimerHandle EnemyActingTimerHandle;
 	// float ArbitraryDelay = 0.5f;
 	// GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
@@ -116,7 +116,7 @@ void ATurnBasedGameState::MarbleEndTurn(ABaseMarble* ActingMarble)
 {
 	// log who ended their turn
 	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *ActingMarble->GetName());
-	ActingMarble->F_OnStopActing.Clear();
+	ActingMarble->FOnStopActing.Clear();
 	PlayerMarblesActable[ActingMarble] = false;
 	bool PlayerCanStillAct = false;
 	for (auto& Marble : PlayerMarblesActable)
@@ -136,12 +136,12 @@ void ATurnBasedGameState::EndTurnWrapper(bool bInput)
 	for (auto& Enemy : EnemyActorsActable)
 	{
 		Enemy.Key->CleanUpForEndTurn();
-		Enemy.Key->F_OnStopActing.Clear();
+		Enemy.Key->FOnStopActing.Clear();
 	}
 	for (auto& Marble : PlayerMarblesActable)
 	{
 		Marble.Key->CleanUpForEndTurn();
-		Marble.Key->F_OnStopActing.Clear();
+		Marble.Key->FOnStopActing.Clear();
 	}
 	EndTurn();
 }

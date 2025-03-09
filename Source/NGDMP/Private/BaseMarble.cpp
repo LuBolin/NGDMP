@@ -303,7 +303,7 @@ void ABaseMarble::CleanUpForEndTurn()
 void ABaseMarble::EndTurn()
 {
 	CleanUpForEndTurn();
-	F_OnStopActing.Broadcast(this);
+	FOnStopActing.Broadcast(this);
 }
 
 void ABaseMarble::InitComponents()
@@ -427,3 +427,12 @@ void ABaseMarble::Die()
 	NewLocation.Z += 10.0f * Radius;
 	SetActorLocation(NewLocation);
 }
+
+void ABaseMarble::UseAbility(bool bPressed)
+{
+	if (! bPressed)
+		return;
+	
+	FOnUseAbility.Broadcast();
+}
+

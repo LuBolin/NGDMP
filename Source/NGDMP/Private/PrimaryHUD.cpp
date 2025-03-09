@@ -2,6 +2,7 @@
 
 #include "PrimaryHUD.h"
 #include "MasterPlayerController.h"
+#include "MaterialHLSLTree.h"
 #include "MyGameModeBase.h"
 #include "PickupActor.h"
 #include "Components/HorizontalBoxSlot.h"
@@ -15,27 +16,14 @@ void UPrimaryHUD::NativeConstruct()
 	AMasterPlayerController* MasterPlayerController = AMasterPlayerController::Instance;
 	MasterPlayerController->FPossess_Updated.AddDynamic(this, &UPrimaryHUD::SetMarble);
 	MasterPlayerController->FState_Updated.AddDynamic(this, &UPrimaryHUD::UpdateStateLabel);
-
-	ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
-	if (!TurnBasedGameState) return;
-	
-	for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Binding to %s"), *Enemy.Key->GetName());	
-		Enemy.Key->CombatComponent->OnDeath.AddDynamic(this, &UPrimaryHUD::SyncEnemyCount);
-	}
-
-	SyncEnemyCount();
-
-	
-	for (APickupActor* Pickup : TurnBasedGameState->PickupObjectives)
-	{
-		Pickup->OnPickup.AddDynamic(this, &UPrimaryHUD::SyncPickupObjectiveCount);
-	}
-	
-	SyncPickupObjectiveCount();
 	
 	SetMarble(nullptr);
+
+	FinishOverlay->SetVisibility(ESlateVisibility::Hidden);
+
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	// OnWinGame has no parameter, bind it to showFinishOverlay with parameter true
+	GameMode->OnGameEnd.AddDynamic(this, &UPrimaryHUD::ShowFinishOverlay);
 }
 
 // Change this to binding if performance is an issue
@@ -70,37 +58,6 @@ void UPrimaryHUD::SetMarble(ABaseMarble* InMarble)
 void UPrimaryHUD::UpdateStateLabel(FString InStateName)
 {
 	PlayerState->SetText(FText::FromString(InStateName));
-}
-
-void UPrimaryHUD::SyncEnemyCount()
-{
-	// ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
-	// if (!TurnBasedGameState) return;
-	//
-	// int32 Count = 0;
-	// for (auto& Enemy : TurnBasedGameState->EnemyActorsActable)
-	// {
-	// 	if (not Enemy.Key->bDead)
-	// 		Count++;
-	// }
-	//
-	// // X enemies left
-	// EnemyCount->SetText(FText::FromString(FString::FromInt(Count) + " enemies left"));
-}
-
-void UPrimaryHUD::SyncPickupObjectiveCount()
-{
-	// ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
-	// if (!TurnBasedGameState) return;
-	//
-	// int32 Count = 0;
-	// for (APickupActor* Pickup : TurnBasedGameState->PickupObjectives)
-	// {
-	// 	if (not Pickup->bCollected)
-	// 		Count++;
-	// }
-	//
-	// PickupObjectivesCount->SetText(FText::FromString(FString::FromInt(Count) + " pickups left"));
 }
 
 UTextBlock* UPrimaryHUD::CreateTextBlock(FString Data, FLinearColor Color)
@@ -177,5 +134,27 @@ void UPrimaryHUD::SyncObjectives()
 	{
 		ObjectivesGrid->AddChildToGrid(CreateTextBlock("Destroy Enemies:", FLinearColor::Yellow), row, 0);
 		ObjectivesGrid->AddChildToGrid(CreateTextBlock(GameMode->checkDestroyAllEnemiesProgress(), FLinearColor::Yellow), row, 1);
-	}	
+		row += 1;
+	}
+	if (GameMode->collectAllStars)
+	{
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock("Collect Stars:", FLinearColor::Yellow), row, 0);
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock(GameMode->checkCollectAllStarsProgress(), FLinearColor::Yellow), row, 1);
+		row += 1;
+	}
+}
+
+void UPrimaryHUD::ShowFinishOverlay(bool bWin)
+{
+	if (bGameEnded)
+		return;
+	bGameEnded = true;
+	
+	FinishOverlay->SetVisibility(ESlateVisibility::Visible);
+	FinishText->SetText(FText::FromString(bWin ? "You Win!" : "You Lose!"));
+	// set brush color, while keeping opacity
+	float opacity = FinishOverlay->GetBrushColor().A;
+	FLinearColor color = bWin ? FLinearColor::Green : FLinearColor::Red;
+	color.A = opacity;
+	FinishOverlay->SetBrushColor(color);
 }

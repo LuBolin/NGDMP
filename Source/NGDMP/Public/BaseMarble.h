@@ -14,7 +14,9 @@
 #include "NiagaraSystem.h"
 #include "BaseMarble.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(F_OnStopActing, ABaseMarble*, ActingMarble);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStopActing, ABaseMarble*, ActingMarble);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUseAbility);
 
 UCLASS()
 class NGDMP_API ABaseMarble : public APawn
@@ -50,8 +52,7 @@ public:
 
 	UFUNCTION()
 	void Launch(FVector Direction, float Force, float BlendDelay);
-
-
+	
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* PhysicsMesh;
@@ -87,8 +88,11 @@ public:
 	UAnimalDataAsset* AnimalDataAsset;
 
 	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
-	F_OnStopActing F_OnStopActing;
+	FOnStopActing FOnStopActing;
 
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
+	FOnUseAbility FOnUseAbility;
+	
 	
 	UFUNCTION()
 	virtual void GetReadyForNewTurn();
@@ -101,6 +105,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UNiagaraSystem* CollisionParticle;
+
+	UFUNCTION()
+	void UseAbility(bool bPressed);
 	
 protected:
 	const float MaxDistToRenderStatusLabel = 2000.0f;

@@ -42,5 +42,8 @@ private:
 
 	UFUNCTION()
 	void ToThirdPersonMarbleCenteredTask(bool bPressed);
+
+	UFUNCTION()
+	void UseAbility(bool bPressed);
 	
 };

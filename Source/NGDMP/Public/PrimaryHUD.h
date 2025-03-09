@@ -6,6 +6,7 @@
 #include "BaseMarble.h"
 #include "Components/TextBlock.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Border.h"
 #include "Components/VerticalBox.h"
 #include "Components/GridPanel.h"
 #include "Components/HorizontalBox.h"
@@ -57,18 +58,18 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UGridPanel* ObjectivesGrid;
 
+	UPROPERTY(meta=(BindWidget))
+	UBorder* FinishOverlay;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* FinishText;
+
 private:
 	UFUNCTION()
 	void SetMarble(ABaseMarble* InMarble);
 
 	UFUNCTION()
 	void UpdateStateLabel(FString InStateName);
-	
-	UFUNCTION()
-	void SyncEnemyCount();
-	
-	UFUNCTION()
-	void SyncPickupObjectiveCount();
 	
 	UFUNCTION()
 	void SyncMarblesStatus();
@@ -78,4 +79,10 @@ private:
 	
 	UFUNCTION()
 	void SyncObjectives();
+
+	UFUNCTION()
+	void ShowFinishOverlay(bool bWin);
+
+	UPROPERTY()
+	bool bGameEnded = false;
 };

@@ -17,6 +17,7 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 
 	PlayerController->FIA_MouseLook.AddDynamic(this, &UFirstPersonMarbleCenteredTask::CameraPan);
 	PlayerController->FIA_Escape.AddDynamic(this, &UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask);
+	PlayerController->FIA_MainAction.AddDynamic(this, &UFirstPersonMarbleCenteredTask::UseAbility);
 	
 	return EStateTreeRunStatus::Running;
 }
@@ -30,7 +31,8 @@ void UFirstPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 
 	PlayerController->FIA_MouseLook.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::CameraPan);
 	PlayerController->FIA_Escape.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask);
-
+	PlayerController->FIA_MainAction.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::UseAbility);
+	
 	Super::ExitState(Context, Transition);
 }
 
@@ -68,7 +70,7 @@ void UFirstPersonMarbleCenteredTask::CameraPan(FVector2f Input)
 	SpringArm->SetRelativeRotation(CurrentRotation);
 }
 
-// ToThirdPersonMarbleCenteredTask
+
 void UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask(bool bPressed)
 {
 	// position camera diagonally behind the marble
@@ -84,4 +86,16 @@ void UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask(bool bPress
 	FVector MarblePosition = PossessedMarble->GetActorLocation();
 	PlayerController->SpectatePawn->SetActorLocation(MarblePosition + BackwardUp);
 	PlayerController->SendStateTreeEventByTagString("Marble.ThirdPerson");
+}
+
+void UFirstPersonMarbleCenteredTask::UseAbility(bool bPressed)
+{
+	PlayerController->PossessedMarble->UseAbility(true);
+	float PopOutDelay = 0.3f;
+	// pop out into third person after a delay
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+	{
+		ToThirdPersonMarbleCenteredTask(true);
+	}, PopOutDelay, false);
 }

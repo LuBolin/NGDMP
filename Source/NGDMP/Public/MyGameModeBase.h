@@ -9,6 +9,8 @@
 #include "PickupActor.h"
 #include "MyGameModeBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEnd, bool, bHasWon);
+
 /**
  * 
  */
@@ -26,15 +28,12 @@ public:
 	
 	UFUNCTION()
 	void LoseGame();
-	
-	UFUNCTION()
-	void RestartGame();
 
 	UPROPERTY(EditAnywhere, Category = "WinCondition")
 	bool destroyAllEnemies = true;
 	
 	UPROPERTY(EditAnywhere, Category = "WinCondition")
-	bool collectAllStars = false;
+	bool collectAllStars = true;
 	
 	UPROPERTY(EditAnywhere, Category = "WinCondition")
 	bool getAllToEscape = false;
@@ -61,11 +60,14 @@ public:
 	UFUNCTION()
 	FString checkDestroyAllEnemiesProgress();
 	
-	// UFUNCTION()
-	// void checkCollectAllStartsProgress();
-	//
+	UFUNCTION()
+	FString checkCollectAllStarsProgress();
+	
 	// UFUNCTION()
 	// void checkGetAllToEscapeProgress();
+
+	UPROPERTY()
+	FOnGameEnd OnGameEnd;
 	
 protected:
 	UFUNCTION()

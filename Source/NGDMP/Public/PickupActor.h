@@ -21,6 +21,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* ObjectMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* PickupIndicatorMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USphereComponent* PickupCollider;
@@ -33,6 +36,12 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnPickupDelegate OnPickup;
+
+	UPROPERTY() // rotate 1 round every 2 seconds
+	float RotationPeriod = 2.0f;
+	
+	UPROPERTY(EditAnywhere)
+	bool bIsObjective = true;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -43,9 +52,6 @@ protected:
 
 	UFUNCTION()
 	void AddToGameModeAndState();
-
-	UPROPERTY(EditAnywhere)
-	bool bIsObjective = true;
 	
 public:	
 	// Called every frame

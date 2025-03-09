@@ -2,6 +2,8 @@
 
 
 #include "BaseEnemy.h"
+#include "MasterPlayerController.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "TurnBasedGameState.h"
 
 ABaseEnemy::ABaseEnemy()
@@ -113,14 +115,17 @@ void ABaseEnemy::Act()
 	}
 	
 	LaunchDirection.Normalize();
-	float Force = 600.0f;
-	float BlendDelay = 0.3f; // this cannot be 0
+	float Force = 800.0f;
+	float BlendDelay = 0.1f;
+	
 	Launch(LaunchDirection, Force, BlendDelay);
 	UE_LOG(LogTemp, Warning, TEXT("Enemy acted"));
 	
-	// emit F_OnStopActing after a 1 second delay
-	// FTimerHandle StopActingTimerHandle;
-	// GetWorldTimerManager().SetTimer(StopActingTimerHandle, this, &ABaseEnemy::EndTurn, 1.0f, false);
+	AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+	APawn* SpectatePawn = PlayerController->GetPawn();
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(
+		SpectatePawn->GetActorLocation(), GetActorLocation());
+	SpectatePawn->SetActorRotation(TargetRotation);
 }
 
 void ABaseEnemy::EndTurn()

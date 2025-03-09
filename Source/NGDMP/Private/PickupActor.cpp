@@ -12,14 +12,22 @@
 // Sets default values
 APickupActor::APickupActor()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	UE_LOG(LogTemp, Warning, TEXT("A"));
+	// object mesh is inside so re-scaling would not affect collider
+	PickupCollider = CreateDefaultSubobject<USphereComponent>(TEXT("PickupCollider"));
+	PickupCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RootComponent = PickupCollider;
+	PickupIndicatorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupIndicatorMesh"));
+	PickupIndicatorMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PickupIndicatorMesh->SetupAttachment(PickupCollider);
 	ObjectMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ObjectMesh"));
 	ObjectMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	RootComponent = ObjectMesh;
-	PickupCollider = CreateDefaultSubobject<USphereComponent>(TEXT("PickupCollider"));
-	PickupCollider->SetupAttachment(ObjectMesh);
+	ObjectMesh->SetupAttachment(PickupCollider);
 	
 	PickupCollider->OnComponentBeginOverlap.AddDynamic(this, &APickupActor::OnPickupOverlap);
+	
+	PrimaryActorTick.bCanEverTick = true;
+	UE_LOG(LogTemp, Warning, TEXT("B"));
 }
 
 
@@ -33,6 +41,9 @@ void APickupActor::BeginPlay()
 void APickupActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	// rotate ObjectMesh about the Z axis based on RotationPeriod
+	float RotationAngle = 360.0f * DeltaTime / RotationPeriod;
+	ObjectMesh->AddLocalRotation(FRotator(0.0f, RotationAngle, 0.0f));
 }
 
 
@@ -43,9 +54,9 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	if (OtherActor->IsA<ABaseMarble>() and not OtherActor->IsA<ABaseEnemy>())
 	{
 		ABaseMarble* Marble = Cast<ABaseMarble>(OtherActor);
-		Marble->CombatComponent->Heal(100);
 		bCollected = true;
 		ObjectMesh->SetVisibility(false);
+		PickupCollider->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("%s collected %s"), *Marble->GetName(), *GetName());
 		if (PickupParticle)
 		{
