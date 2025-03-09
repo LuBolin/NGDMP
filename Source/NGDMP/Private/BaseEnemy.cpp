@@ -75,10 +75,6 @@ void ABaseEnemy::Act()
 			if (not bHit) // clear hit
 			{
 				LaunchDirection = (PlayerMarbleLocation - OwnLocation).GetSafeNormal();
-				// UE_LOG(LogTemp, Warning, TEXT("Launch direction: %s"), *LaunchDirection.ToString());
-				// FVector debug = (PlayerMarbleLocation - OwnLocation);
-				// debug.Normalize();
-				// UE_LOG(LogTemp, Warning, TEXT("Normalized direction: %s"), *debug.ToString());
 				HasVisiblePlayerInRange = true;
 				break;
 			} else {

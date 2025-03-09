@@ -12,7 +12,6 @@
 // Sets default values
 APickupActor::APickupActor()
 {
-	UE_LOG(LogTemp, Warning, TEXT("A"));
 	// object mesh is inside so re-scaling would not affect collider
 	PickupCollider = CreateDefaultSubobject<USphereComponent>(TEXT("PickupCollider"));
 	PickupCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -27,7 +26,6 @@ APickupActor::APickupActor()
 	PickupCollider->OnComponentBeginOverlap.AddDynamic(this, &APickupActor::OnPickupOverlap);
 	
 	PrimaryActorTick.bCanEverTick = true;
-	UE_LOG(LogTemp, Warning, TEXT("B"));
 }
 
 
@@ -57,7 +55,6 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		bCollected = true;
 		ObjectMesh->SetVisibility(false);
 		PickupCollider->SetVisibility(false);
-		UE_LOG(LogTemp, Warning, TEXT("%s collected %s"), *Marble->GetName(), *GetName());
 		if (PickupParticle)
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PickupParticle, GetActorLocation());

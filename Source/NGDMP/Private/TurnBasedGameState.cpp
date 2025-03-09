@@ -44,11 +44,8 @@ void ATurnBasedGameState::EndTurn()
 void ATurnBasedGameState::BeginPlayerTurn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player turn started"));
-	// log size of PlayerMablelsActable
-	UE_LOG(LogTemp, Warning, TEXT("PlayerMarblesActable size: %d"), PlayerMarblesActable.Num());
 	for (auto& Marble : PlayerMarblesActable)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s is dead? %s"), *Marble.Key->GetName(), Marble.Key->bDead ? TEXT("true") : TEXT("false"));
 		if (Marble.Key->bDead)
 		{
 			Marble.Value = false;

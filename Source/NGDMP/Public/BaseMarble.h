@@ -16,6 +16,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStopActing, ABaseMarble*, ActingMarble);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartActing);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUseAbility);
 
 UCLASS()
@@ -92,7 +93,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
 	FOnUseAbility FOnUseAbility;
-	
+
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, Category = "Event")
+	FOnStartActing FOnStartActing;
 	
 	UFUNCTION()
 	virtual void GetReadyForNewTurn();

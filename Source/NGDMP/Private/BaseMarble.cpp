@@ -164,9 +164,13 @@ void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 		bTakingTurn = true;
 		bReadyToLaunch = false;
 		bCanUseAbility = true;
+
+		FOnStartActing.Broadcast();
+		
 		ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
 		if (!TurnBasedGameState) return;
 		TurnBasedGameState->CurrentActor = this;
+
 	}, BlendDelay, false);
 }
 
@@ -316,6 +320,8 @@ void ABaseMarble::InitComponents()
 		Destroy();
 		return;
 	}
+	// log max health
+	UE_LOG(LogTemp, Warning, TEXT("Max Health: %f"), AnimalDataAsset->MaxHealth);
 	CombatComponent->SetMaxHealth(AnimalDataAsset->MaxHealth, true);
 	
 	InitOutlineMaterialInstance();
