@@ -3,6 +3,7 @@
 
 #include "TurnBasedGameState.h"
 #include "MasterPlayerController.h"
+#include "PrimaryHUD.h"
 
 ATurnBasedGameState* ATurnBasedGameState::Instance = nullptr;
 
@@ -18,21 +19,30 @@ void ATurnBasedGameState::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentTurn = ETurnState::PLAYER_TURN;
-	StartTurn();
 
 	// bind key to endturn for debugging
 	AMasterPlayerController *MasterPlayerController = AMasterPlayerController::Instance;
 	MasterPlayerController->FIA_Debug.AddDynamic(this, &ATurnBasedGameState::EndTurnWrapper);
+
+	// wait for 0.2 seconds before starting the turn
+	FTimerHandle TurnStartTimerHandle;
+	float ArbitraryDelay = 0.2f;
+	GetWorldTimerManager().SetTimer(TurnStartTimerHandle,
+		this, &ATurnBasedGameState::StartTurn, ArbitraryDelay, false);
 }
 
 void ATurnBasedGameState::StartTurn()
 {
-	// broadcast F_TurnStarted
-	if (CurrentTurn == ETurnState::PLAYER_TURN)
-		BeginPlayerTurn();
-	else
-		BeginEnemyTurn();
 	F_TurnStarted.Broadcast(CurrentTurn);
+
+	// when delay finish, then start the turn
+	float turnInfoBannerDuration = UPrimaryHUD::turnTransitionDuration;
+	FTimerHandle TurnStartTimerHandle;
+
+	auto SpecificStartTurnMethod = (CurrentTurn == ETurnState::PLAYER_TURN)
+		? &ATurnBasedGameState::BeginPlayerTurn : &ATurnBasedGameState::BeginEnemyTurn;
+	GetWorldTimerManager().SetTimer(TurnStartTimerHandle, this, SpecificStartTurnMethod, turnInfoBannerDuration, false);
+	
 }
 
 void ATurnBasedGameState::EndTurn()
@@ -44,16 +54,21 @@ void ATurnBasedGameState::EndTurn()
 void ATurnBasedGameState::BeginPlayerTurn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player turn started"));
-	for (auto& Marble : PlayerMarblesActable)
+	for (auto& MarbleTuple : PlayerMarblesActable)
 	{
-		if (Marble.Key->bDead)
+		ABaseMarble* Marble = MarbleTuple.Key;
+		
+		if (Marble->bDead)
 		{
-			Marble.Value = false;
+			MarbleTuple.Value = false;
 		} else
 		{
-			Marble.Value = true;
-			Marble.Key->FOnStopActing.AddDynamic(this, &ATurnBasedGameState::MarbleEndTurn);
-			Marble.Key->GetReadyForNewTurn();	
+			MarbleTuple.Value = true;
+			
+			AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+			PlayerController->ForceFocusOnMarble(Marble);
+			
+			Marble->GetReadyForNewTurn();
 		}
 	}
 }
@@ -69,7 +84,6 @@ void ATurnBasedGameState::BeginEnemyTurn()
 		} else
 		{
 			Enemy.Value = true;
-			Enemy.Key->FOnStopActing.AddDynamic(this, &ATurnBasedGameState::EnemyActorEndTurn);
 			Enemy.Key->GetReadyForNewTurn();	
 		}
 	}
@@ -80,19 +94,23 @@ void ATurnBasedGameState::EnemyActorStartTurn()
 {
 	// find an enemy that can act
 	// if no enemy can act, end the turn
-	for (auto& Enemy : EnemyActorsActable)
+	for (auto& EnemyTuple : EnemyActorsActable)
 	{
-		ABaseEnemy* CurrentEnemy = Enemy.Key;
-		bool CanAct = Enemy.Value;
+		ABaseEnemy* Enemy = EnemyTuple.Key;
+		bool CanAct = EnemyTuple.Value;
 		if (CanAct)
 		{
-			if (CurrentEnemy->bDead)
+			if (Enemy->bDead)
 			{
-				Enemy.Value = false;
+				EnemyTuple.Value = false;
 			} else
 			{
-				Enemy.Key->Act();
-				Enemy.Value = false;
+				// look at marble that is going to act
+				AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+				PlayerController->ForceFocusOnMarble(Enemy);
+				
+				Enemy->Act();
+				EnemyTuple.Value = false;
 				return;
 			}
 		}
@@ -100,30 +118,34 @@ void ATurnBasedGameState::EnemyActorStartTurn()
 	EndTurn();
 }
 
-void ATurnBasedGameState::EnemyActorEndTurn(ABaseMarble* ActingEnemy)
+void ATurnBasedGameState::CurrentEnemyActorEndTurn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *ActingEnemy->GetName());
-	ActingEnemy->FOnStopActing.Clear();
-	// FTimerHandle EnemyActingTimerHandle;
-	// float ArbitraryDelay = 0.5f;
-	// GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
+	FTimerHandle EnemyActingTimerHandle;
+	float ArbitraryDelay = 0.5f;
+	GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
 }
 
-void ATurnBasedGameState::MarbleEndTurn(ABaseMarble* ActingMarble)
+void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 {
 	// log who ended their turn
-	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *ActingMarble->GetName());
-	ActingMarble->FOnStopActing.Clear();
-	PlayerMarblesActable[ActingMarble] = false;
+	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *CurrentActor->GetName());
+	PlayerMarblesActable[CurrentActor] = false;
 	bool PlayerCanStillAct = false;
-	for (auto& Marble : PlayerMarblesActable)
+	for (auto& MarbleTuple : PlayerMarblesActable)
 	{
-		if (Marble.Value)
+		ABaseMarble* Marble = MarbleTuple.Key;
+		bool CanAct = MarbleTuple.Value;
+
+		if (CanAct)
 		{
+			AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+			PlayerController->ForceFocusOnMarble(Marble);
+			
 			PlayerCanStillAct = true;
 			break;
 		}
 	}
+	
 	if (!PlayerCanStillAct)
 		EndTurn();
 }
@@ -180,14 +202,17 @@ void ATurnBasedGameState::CheckMarblesAtRest()
 		RestDuration += GetWorld()->GetDeltaSeconds();
 		if (RestDuration > 1.0f)
 		{
-			CurrentActor = nullptr;
-			RestDuration = 0.0f;
 			if (CurrentTurn == ETurnState::ENEMY_TURN)
 			{
-				FTimerHandle EnemyActingTimerHandle;
-				float ArbitraryDelay = 0.5f;
-				GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
+				CurrentEnemyActorEndTurn();
 			}
+			else
+			{
+				CurrentPlayerMarbleEndTurn();
+			}
+			
+			CurrentActor = nullptr;
+			RestDuration = 0.0f;
 		}
 	} else
 	{

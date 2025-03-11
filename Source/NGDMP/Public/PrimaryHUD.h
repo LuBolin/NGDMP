@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseMarble.h"
+#include "TurnBasedGameState.h"
 #include "Components/TextBlock.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Border.h"
@@ -19,6 +20,9 @@ UCLASS()
 class NGDMP_API UPrimaryHUD : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	static constexpr float turnTransitionDuration = 1.2f;
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -63,7 +67,13 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* FinishText;
+	
+	UPROPERTY(meta=(BindWidget))
+	UBorder* InfoBanner;
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* InfoBannerText;
+	
 private:
 	UFUNCTION()
 	void SetMarble(ABaseMarble* InMarble);
@@ -85,4 +95,13 @@ private:
 
 	UPROPERTY()
 	bool bGameEnded = false;
+	
+	UFUNCTION()
+	void ShowTurnTransition(ETurnState TurnState);
+	
+	UFUNCTION()
+	void ShowInfoBanner(FString info, FLinearColor backgroundColor, float duration);
+	
+	UFUNCTION()
+	void HideInfoBanner();
 };

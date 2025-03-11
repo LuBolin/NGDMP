@@ -114,14 +114,19 @@ void ABaseEnemy::Act()
 	float Force = 800.0f;
 	float BlendDelay = 0.1f;
 	
-	Launch(LaunchDirection, Force, BlendDelay);
+	// fake thinking so player can process what is going on
+	// also helps in waiting for the camera transition
+	float ThinkDuration = 0.5f;
+	
+	FTimerHandle ThinkTimerHandle;
+	auto LaunchWrapper = [this, LaunchDirection, Force, BlendDelay]() {
+		Launch(LaunchDirection, Force, BlendDelay);
+	};
+	GetWorld()->GetTimerManager().SetTimer(ThinkTimerHandle, LaunchWrapper, ThinkDuration, false);
+	
 	UE_LOG(LogTemp, Warning, TEXT("Enemy acted"));
 	
-	AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
-	APawn* SpectatePawn = PlayerController->GetPawn();
-	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(
-		SpectatePawn->GetActorLocation(), GetActorLocation());
-	SpectatePawn->SetActorRotation(TargetRotation);
+
 }
 
 void ABaseEnemy::EndTurn()

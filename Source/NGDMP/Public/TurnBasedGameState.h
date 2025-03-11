@@ -78,10 +78,10 @@ private:
 	void EnemyActorStartTurn();
 	
 	UFUNCTION()
-	void EnemyActorEndTurn(ABaseMarble* ActingMarble);
+	void CurrentEnemyActorEndTurn();
 
 	UFUNCTION()
-	void MarbleEndTurn(ABaseMarble* ActingMarble);
+	void CurrentPlayerMarbleEndTurn();
 
 	UFUNCTION()
 	void EndTurnWrapper(bool bInput);

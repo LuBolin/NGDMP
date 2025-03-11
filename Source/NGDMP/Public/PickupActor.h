@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseMarble.h"
 #include "NiagaraSystem.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "PickupActor.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickupDelegate);
+// parameter of picking actor
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickupDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickupDelegate, ABaseMarble*, PickingMarble);
 
 UCLASS()
 class NGDMP_API APickupActor : public AActor
@@ -42,6 +45,9 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	bool bIsObjective = true;
+
+	UPROPERTY(EditAnywhere)
+	bool bShouldRotate = true;
 	
 protected:
 	// Called when the game starts or when spawned

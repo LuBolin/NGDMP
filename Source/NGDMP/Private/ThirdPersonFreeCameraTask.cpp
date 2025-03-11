@@ -97,10 +97,10 @@ void UThirdPersonFreeCameraTask::PossessAimedPawn(bool bInspect)
 		return;
 	}
 
-	if (AimedMarble->IsA<ABaseEnemy>())
-	{
-		return;
-	}
+	// if (AimedMarble->IsA<ABaseEnemy>())
+	// {
+	// 	return;
+	// }
 
 	PlayerController->PossessedMarble = AimedMarble;
 	ToThirdPersonMarbleCenteredTask(bInspect);

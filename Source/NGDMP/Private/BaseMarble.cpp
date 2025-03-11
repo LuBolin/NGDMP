@@ -405,7 +405,7 @@ void ABaseMarble::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 
 	FVector TargetDirn = -Hit.ImpactNormal;
 	float Damage = CalculateDamage(LastVelocity, TargetDirn);
-	UE_LOG(LogTemp, Warning, TEXT("%s tries to deal %f Damage to %s"), *GetName(), Damage, *OtherMarble->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("%s tries to deal %f Damage to %s"), *GetName(), Damage, *OtherMarble->GetName());
 	OtherMarble->CombatComponent->TakeDamage(Damage, this);
 }
 

@@ -29,13 +29,13 @@ void UCombatComponent::TakeDamage(float Damage, AActor* Source)
 	if (Damage <= 0.f || CurrentHealth <= 0.f)
 		return;
 	
-	if (Source)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s is taking %f damage from %s"), *GetOwner()->GetName(), Damage, *Source->GetName());
-	} else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Taking %f damage"), Damage);	
-	}
+	// if (Source)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("%s is taking %f damage from %s"), *GetOwner()->GetName(), Damage, *Source->GetName());
+	// } else
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("Taking %f damage"), Damage);	
+	// }
 	
 
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);

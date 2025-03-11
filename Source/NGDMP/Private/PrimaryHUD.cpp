@@ -20,10 +20,13 @@ void UPrimaryHUD::NativeConstruct()
 	SetMarble(nullptr);
 
 	FinishOverlay->SetVisibility(ESlateVisibility::Hidden);
+	InfoBanner->SetVisibility(ESlateVisibility::Hidden);
 
 	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
-	// OnWinGame has no parameter, bind it to showFinishOverlay with parameter true
 	GameMode->OnGameEnd.AddDynamic(this, &UPrimaryHUD::ShowFinishOverlay);
+
+	ATurnBasedGameState* GameState = ATurnBasedGameState::GetInstance();
+	GameState->F_TurnStarted.AddDynamic(this, &UPrimaryHUD::ShowTurnTransition);
 }
 
 // Change this to binding if performance is an issue
@@ -157,4 +160,28 @@ void UPrimaryHUD::ShowFinishOverlay(bool bWin)
 	FLinearColor color = bWin ? FLinearColor::Green : FLinearColor::Red;
 	color.A = opacity;
 	FinishOverlay->SetBrushColor(color);
+}
+
+void UPrimaryHUD::ShowTurnTransition(ETurnState TurnState)
+{
+	FString info = (TurnState == ETurnState::PLAYER_TURN) ? "Player's Turn" : "Enemy's Turn";
+	FLinearColor color = (TurnState == ETurnState::PLAYER_TURN) ? FLinearColor::Green : FLinearColor::Red;
+	ShowInfoBanner(info, color, turnTransitionDuration);
+}
+
+void UPrimaryHUD::ShowInfoBanner(FString info, FLinearColor backgroundColor, float duration)
+{
+	InfoBanner->SetVisibility(ESlateVisibility::Visible);
+	InfoBannerText->SetText(FText::FromString(info));
+	constexpr float backgroundOpacity = 0.4f;
+	backgroundColor.A = backgroundOpacity;
+	InfoBanner->SetBrushColor(backgroundColor);
+	FTimerHandle InfoBannerTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		InfoBannerTimerHandle, this, &UPrimaryHUD::HideInfoBanner, duration, false);
+}
+
+void UPrimaryHUD::HideInfoBanner()
+{
+	InfoBanner->SetVisibility(ESlateVisibility::Hidden);
 }

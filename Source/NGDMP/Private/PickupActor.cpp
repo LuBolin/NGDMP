@@ -14,13 +14,13 @@ APickupActor::APickupActor()
 {
 	// object mesh is inside so re-scaling would not affect collider
 	PickupCollider = CreateDefaultSubobject<USphereComponent>(TEXT("PickupCollider"));
-	PickupCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PickupCollider->SetCollisionProfileName(TEXT("OverlapAll"));
 	RootComponent = PickupCollider;
 	PickupIndicatorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupIndicatorMesh"));
-	PickupIndicatorMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PickupIndicatorMesh->SetCollisionProfileName(TEXT("OverlapAll"));
 	PickupIndicatorMesh->SetupAttachment(PickupCollider);
 	ObjectMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ObjectMesh"));
-	ObjectMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ObjectMesh->SetCollisionProfileName(TEXT("OverlapAll"));
 	ObjectMesh->SetupAttachment(PickupCollider);
 	
 	PickupCollider->OnComponentBeginOverlap.AddDynamic(this, &APickupActor::OnPickupOverlap);
@@ -39,9 +39,12 @@ void APickupActor::BeginPlay()
 void APickupActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// rotate ObjectMesh about the Z axis based on RotationPeriod
-	float RotationAngle = 360.0f * DeltaTime / RotationPeriod;
-	ObjectMesh->AddLocalRotation(FRotator(0.0f, RotationAngle, 0.0f));
+	if (bShouldRotate)
+	{
+		// rotate ObjectMesh about the Z axis based on RotationPeriod
+		float RotationAngle = 360.0f * DeltaTime / RotationPeriod;
+		ObjectMesh->AddLocalRotation(FRotator(0.0f, RotationAngle, 0.0f));
+	}
 }
 
 
@@ -55,11 +58,12 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		bCollected = true;
 		ObjectMesh->SetVisibility(false);
 		PickupCollider->SetVisibility(false);
+		PickupIndicatorMesh->SetVisibility(false);
 		if (PickupParticle)
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PickupParticle, GetActorLocation());
 		}
-		OnPickup.Broadcast();
+		OnPickup.Broadcast(Marble);
 	}
 }
 

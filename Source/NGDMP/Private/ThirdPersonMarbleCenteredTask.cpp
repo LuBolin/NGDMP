@@ -50,6 +50,8 @@ void UThirdPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 // Tick
 EStateTreeRunStatus UThirdPersonMarbleCenteredTask::Tick(FStateTreeExecutionContext& Context, const float DeltaTime)
 {
+	//UE_LOG(LogTemp, Log, TEXT("bCenteredOnMarble: %d"), bCenteredOnMarble);
+
 	if (bCenteredOnMarble)
 		SyncAndClampCamera();
 	else
@@ -166,6 +168,11 @@ void UThirdPersonMarbleCenteredTask::ToThirdPersonFreeCameraTask(bool bInspect)
 
 void UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask(bool bActionPressed)
 {
+	if (PlayerController->PossessedMarble->IsA<ABaseEnemy>())
+	{
+		return;
+	}
+	
 	if (bActionPressed and bCenteredOnMarble and PlayerController->PossessedMarble->bReadyToLaunch)
 	{
 		ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();

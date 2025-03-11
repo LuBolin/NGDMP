@@ -71,6 +71,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Possession")
 	ABaseMarble* PossessedMarble = nullptr;
 	
+	UFUNCTION()
+	void ForceFocusOnMarble(ABaseMarble* Marble);
+	
 protected:
 	UFUNCTION()
 	virtual void BeginPlay() override;
