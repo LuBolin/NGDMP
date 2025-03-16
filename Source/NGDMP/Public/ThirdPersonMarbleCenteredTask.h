@@ -30,7 +30,7 @@ protected:
 	constexpr static float PitchSpeed = 1.0f;
 	constexpr static float ZoomBaseSpeed = 5.0f;
 	constexpr static float ZoomVariableSpeed = 0.75f;
-	constexpr static float MinPitch = 0.0f;
+	constexpr static float MinPitch = 15.0f;
 	constexpr static float MaxPitch = 75.0f;
 	constexpr static float MinCamDist = 240.0f;
 	constexpr static float MaxCamDist = 1000.0f;

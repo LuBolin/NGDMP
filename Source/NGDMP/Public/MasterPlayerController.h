@@ -73,7 +73,7 @@ public:
 	
 	UFUNCTION()
 	void ForceFocusOnMarble(ABaseMarble* Marble);
-	
+
 protected:
 	UFUNCTION()
 	virtual void BeginPlay() override;

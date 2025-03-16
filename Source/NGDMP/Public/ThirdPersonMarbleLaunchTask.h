@@ -36,13 +36,16 @@ private:
 	FVector MouseWorldProjection = FVector::ZeroVector;
 
 	UPROPERTY()
-	float ForceMultiplier = 3.0f;
+	float ForceMultiplier = 2.5f;
 	
 	UFUNCTION()
 	void ComputeMouseWorldProjection();
 	
 	UFUNCTION()
 	void RenderControlLine();
+
+	UFUNCTION()
+	void RenderLaunchMaxCircle();
 	
 	UFUNCTION()
 	void TryLaunch(bool bLaunchReleased);

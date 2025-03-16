@@ -48,6 +48,7 @@ void UThirdPersonMarbleLaunchTask::ExitState(FStateTreeExecutionContext& Context
 EStateTreeRunStatus UThirdPersonMarbleLaunchTask::Tick(FStateTreeExecutionContext& Context, const float DeltaTime)
 {
 	ComputeMouseWorldProjection();
+	RenderLaunchMaxCircle();
 	RenderControlLine();
 	
 	return EStateTreeRunStatus::Running;
@@ -82,16 +83,49 @@ void UThirdPersonMarbleLaunchTask::ComputeMouseWorldProjection()
 
 void UThirdPersonMarbleLaunchTask::RenderControlLine()
 {
-	if (bMouseProjectionIsValid)
-	{
-		ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
-		FVector Down = FVector(0.0f, 0.0f, -1.0f);
-		FVector MarbleBottom = PossessedMarble->GetActorLocation()
-			+ Down * PossessedMarble->Radius;
-		float DeltaTime = GetWorld()->GetDeltaSeconds();
-		DrawDebugLine(GetWorld(), MarbleBottom, MouseWorldProjection,
-			FColor::Red, false, DeltaTime, 0, 2.0f);
-	}
+	if (not bMouseProjectionIsValid)
+		return;
+	
+	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
+	float launchMaxLength = PossessedMarble->AnimalDataAsset->MaxLaunchForce;
+	launchMaxLength /= ForceMultiplier;
+	FVector Down = FVector(0.0f, 0.0f, -1.0f);
+	FVector MarbleBottom = PossessedMarble->GetActorLocation()
+		+ Down * PossessedMarble->Radius;
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	FVector MouseDirection = MouseWorldProjection - MarbleBottom;
+	// clamp MouseDirection to launchMaxLength
+	MouseDirection = MouseDirection.GetClampedToMaxSize(launchMaxLength);
+	MouseWorldProjection = MouseDirection + MarbleBottom;
+	
+	DrawDebugLine(GetWorld(), MarbleBottom, MouseWorldProjection,
+		FColor::Red, false, DeltaTime, 1, 4.0f);
+}
+
+void UThirdPersonMarbleLaunchTask::RenderLaunchMaxCircle()
+{
+	if (not bMouseProjectionIsValid)
+		return;
+
+	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
+	float launchMaxLength = PossessedMarble->AnimalDataAsset->MaxLaunchForce;
+	launchMaxLength /= ForceMultiplier;
+	UE_LOG(LogTemp, Warning, TEXT("Launch Max Length: %f"), launchMaxLength);
+	// draw a circle around the marble at the launchMaxLength distance
+	// project the circle onto the plane of the marble
+	FVector Down = FVector(0.0f, 0.0f, -1.0f);
+	FVector MarbleBottom = PossessedMarble->GetActorLocation()
+		+ Down * PossessedMarble->Radius;
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	// use YAxis and ZAxis to adjust the draw plane
+	// the circle will be drawn on the plane of the marble
+	FVector MouseDirection = MouseWorldProjection - MarbleBottom;
+	FVector CircleY = MouseDirection.GetSafeNormal();
+	FVector CircleZ = FVector::CrossProduct(CircleY, Down).GetSafeNormal();
+	// get 2 vectors that represent this plane that the 
+	DrawDebugCircle(GetWorld(), MarbleBottom, launchMaxLength, 32,
+		FColor::Green, false, DeltaTime, 0, 4.0f,
+		CircleY, CircleZ, true);
 }
 
 
@@ -107,6 +141,7 @@ void UThirdPersonMarbleLaunchTask::TryLaunch(bool bLaunchPressed)
 		Direction.Normalize();
 		float Force = FVector::Dist(MarbleBottom, MouseWorldProjection);
 		Force *= ForceMultiplier;
+		Force = FMath::Clamp(Force, 0.0f, PossessedMarble->AnimalDataAsset->MaxLaunchForce);
 		UE_LOG(LogTemp, Warning, TEXT("Launched with force %f"), Force);
 		PlayerController->SendStateTreeEventByTagString("Action.Launched");
 		float BlendDelay = UFirstPersonMarbleCenteredTask::SetViewBlendDuration;

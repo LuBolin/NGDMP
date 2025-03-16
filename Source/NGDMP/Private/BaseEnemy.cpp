@@ -111,7 +111,12 @@ void ABaseEnemy::Act()
 	}
 	
 	LaunchDirection.Normalize();
-	float Force = 800.0f;
+	float MaxLaunchForce = AnimalDataAsset->MaxLaunchForce;
+	float Force = MaxLaunchForce;
+	if (not HasVisiblePlayerInRange)
+	{ // if no player directly visible, no reason to launch with full force
+		Force *= FMath::RandRange(0.7f, 1.0f); 
+	}
 	float BlendDelay = 0.1f;
 	
 	// fake thinking so player can process what is going on
