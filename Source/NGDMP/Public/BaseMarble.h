@@ -125,8 +125,9 @@ protected:
 	UFUNCTION()
 	FVector GetRandomVectorOnPlane(FVector Normal);
 	
-	UPROPERTY()
-	FLinearColor NeutralOutlineColor = FLinearColor::Black;
+	UPROPERTY() // dark green
+	FLinearColor NeutralOutlineColor = FLinearColor::LerpUsingHSV(
+		FLinearColor::Green, FLinearColor::Black, 0.5f);
 
 	UPROPERTY()
 	FLinearColor AimedOutlineColor = FLinearColor::Yellow;

@@ -110,7 +110,7 @@ void UThirdPersonMarbleLaunchTask::RenderLaunchMaxCircle()
 	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
 	float launchMaxLength = PossessedMarble->AnimalDataAsset->MaxLaunchForce;
 	launchMaxLength /= ForceMultiplier;
-	UE_LOG(LogTemp, Warning, TEXT("Launch Max Length: %f"), launchMaxLength);
+	
 	// draw a circle around the marble at the launchMaxLength distance
 	// project the circle onto the plane of the marble
 	FVector Down = FVector(0.0f, 0.0f, -1.0f);

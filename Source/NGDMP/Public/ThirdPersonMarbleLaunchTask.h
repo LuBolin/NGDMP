@@ -36,7 +36,7 @@ private:
 	FVector MouseWorldProjection = FVector::ZeroVector;
 
 	UPROPERTY()
-	float ForceMultiplier = 2.5f;
+	float ForceMultiplier = 3.0f;
 	
 	UFUNCTION()
 	void ComputeMouseWorldProjection();
