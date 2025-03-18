@@ -95,8 +95,17 @@ void ABaseMarble::SolvePhysicsSleep()
 	FVector CurrentVelocity = PhysicsMesh->GetPhysicsLinearVelocity();
 	if (PhysicsMesh->IsAnyRigidBodyAwake())
 	{
-		// Check if within threshold and also slowing down
-		if (CurrentVelocity.Size() < SleepLinearThreshold and CurrentVelocity.Size() < LastVelocity.Size())
+		// Check if within threshold and also slowing down (changed to not speeding up due to crab)
+		bool SlowEnough = CurrentVelocity.Size() < SleepLinearThreshold;
+		bool EffectivelyNotSpeedingUp = (CurrentVelocity.Size() <= LastVelocity.Size())
+			or abs(CurrentVelocity.Size() - LastVelocity.Size()) < IgnorableAccelerationThreshold;
+
+		// UE_LOG(LogTemp, Warning, TEXT("Current Velocity: %f"), CurrentVelocity.Size());
+		// UE_LOG(LogTemp, Warning, TEXT("Last Velocity: %f"), LastVelocity.Size());
+		// UE_LOG(LogTemp, Warning, TEXT("Slow Enough: %d"), SlowEnough);
+		// UE_LOG(LogTemp, Warning, TEXT("Effectively Not Speeding Up: %d"), EffectivelyNotSpeedingUp);
+		
+		if (SlowEnough and EffectivelyNotSpeedingUp)
 		{
 			SleepCounter++;
 			if (SleepCounter >= SleepCounterThreshold)

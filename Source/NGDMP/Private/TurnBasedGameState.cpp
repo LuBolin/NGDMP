@@ -3,6 +3,7 @@
 
 #include "TurnBasedGameState.h"
 #include "MasterPlayerController.h"
+#include "MyGameModeBase.h"
 #include "PrimaryHUD.h"
 
 ATurnBasedGameState* ATurnBasedGameState::Instance = nullptr;
@@ -154,6 +155,20 @@ void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 	PlayerMarblesActable[CurrentActor] = false;
 	ABaseMarble* ActableMarble = nullptr;
 	FVector CameraLocation = AMasterPlayerController::Instance->GetPawn()->GetActorLocation();
+
+	// if all enemy are dead, let all marbles act all the time
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	bool AllEnemyDead = GameMode->checkDestroyAllEnemiesProgress() == GameMode->ObjectiveCompleteMessage;
+	if (AllEnemyDead)
+    {
+        for (auto& MarbleTuple : PlayerMarblesActable)
+        {
+        	MarbleTuple.Value = true;
+        	MarbleTuple.Key->GetReadyForNewTurn();
+        }
+    }
+
+	
 	for (auto& MarbleTuple : PlayerMarblesActable)
 	{
 		ABaseMarble* Marble = MarbleTuple.Key;

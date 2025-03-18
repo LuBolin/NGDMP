@@ -173,6 +173,9 @@ private:
 	float SleepLinearThreshold = 20.0f; // very slow
 
 	UPROPERTY()
+	float IgnorableAccelerationThreshold = 2.0f; // basically 0 acceleration
+	
+	UPROPERTY()
 	int SleepCounterThreshold = 15; // quarter second
 	
 	UPROPERTY()
