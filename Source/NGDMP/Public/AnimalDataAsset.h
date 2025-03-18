@@ -29,6 +29,12 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	float MaxLaunchForce = 600.0f;
+
+	// how long after casting ability
+	// to transition to third person camera
+	// a negative value means do not auto transition
+	UPROPERTY(EditAnywhere)
+	float AbilityCameraTransitionDelay = 0.3f;
 	
 	// Not putting mesh here due to scaling
 	// Easier to scale in the editor

@@ -54,6 +54,8 @@ void ATurnBasedGameState::EndTurn()
 void ATurnBasedGameState::BeginPlayerTurn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player turn started"));
+	ABaseMarble* ActableMarble = nullptr;
+	FVector CameraLocation = AMasterPlayerController::Instance->GetPawn()->GetActorLocation();
 	for (auto& MarbleTuple : PlayerMarblesActable)
 	{
 		ABaseMarble* Marble = MarbleTuple.Key;
@@ -64,12 +66,32 @@ void ATurnBasedGameState::BeginPlayerTurn()
 		} else
 		{
 			MarbleTuple.Value = true;
+
+			if (not ActableMarble)
+				ActableMarble = Marble;
+			else
+			{
+				// distance from actable marble to camera
+				float actableDist = (ActableMarble->GetActorLocation() - CameraLocation).Size();
+				float marbleDist = (Marble->GetActorLocation() - CameraLocation).Size();
+				if (marbleDist < actableDist)
+					ActableMarble = Marble;
+			}
 			
-			AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
-			PlayerController->ForceFocusOnMarble(Marble);
 			
 			Marble->GetReadyForNewTurn();
 		}
+	}
+	
+	ABaseMarble* CurrentPossessedMarble = AMasterPlayerController::Instance->PossessedMarble;
+	bool PossessingActableMarble = CurrentPossessedMarble and not CurrentPossessedMarble->bReadyToLaunch; 
+	if (ActableMarble and not PossessingActableMarble)
+	{
+		AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+		PlayerController->ForceFocusOnMarble(ActableMarble);
+	} else
+	{
+		EndTurn();
 	}
 }
 
@@ -130,24 +152,38 @@ void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 	// log who ended their turn
 	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *CurrentActor->GetName());
 	PlayerMarblesActable[CurrentActor] = false;
-	bool PlayerCanStillAct = false;
+	ABaseMarble* ActableMarble = nullptr;
+	FVector CameraLocation = AMasterPlayerController::Instance->GetPawn()->GetActorLocation();
 	for (auto& MarbleTuple : PlayerMarblesActable)
 	{
 		ABaseMarble* Marble = MarbleTuple.Key;
 		bool CanAct = MarbleTuple.Value;
 
-		if (CanAct)
+		if (not CanAct)
+			continue;
+		
+		if (not ActableMarble)
+			ActableMarble = Marble;
+		else
 		{
-			AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
-			PlayerController->ForceFocusOnMarble(Marble);
-			
-			PlayerCanStillAct = true;
-			break;
+			float actableDist = (ActableMarble->GetActorLocation() - CameraLocation).Size();
+			float marbleDist = (Marble->GetActorLocation() - CameraLocation).Size();
+			if (marbleDist < actableDist)
+				ActableMarble = Marble;
 		}
 	}
 	
-	if (!PlayerCanStillAct)
+	ABaseMarble* CurrentPossessedMarble = AMasterPlayerController::Instance->PossessedMarble;
+	bool PossessingActableMarble = CurrentPossessedMarble and not CurrentPossessedMarble->bReadyToLaunch;
+	if (ActableMarble and not PossessingActableMarble)
+	{
+		AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+		PlayerController->ForceFocusOnMarble(ActableMarble);
+	} else
+	{
 		EndTurn();
+	}
+	
 }
 
 void ATurnBasedGameState::EndTurnWrapper(bool bInput)

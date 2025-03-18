@@ -90,8 +90,13 @@ void UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask(bool bPress
 
 void UFirstPersonMarbleCenteredTask::UseAbility(bool bPressed)
 {
-	PlayerController->PossessedMarble->UseAbility(true);
-	float PopOutDelay = 0.3f;
+	ABaseMarble* Marble = PlayerController->PossessedMarble;
+	Marble->UseAbility(true);
+	float PopOutDelay = Marble->AnimalDataAsset->AbilityCameraTransitionDelay;
+	if (PopOutDelay < 0.0f) // meaning "do not pop out"
+	{
+		return;
+	}
 	// pop out into third person after a delay
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()

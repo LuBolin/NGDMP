@@ -15,6 +15,7 @@ ABaseMarble::ABaseMarble()
 	PrimaryActorTick.bCanEverTick = true;
 	PhysicsMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Marble"));
 	PhysicsMesh->SetSimulatePhysics(true);
+	PhysicsMesh->SetGenerateOverlapEvents(true);
 	RootComponent = PhysicsMesh;
 	MarbleCollider = CreateDefaultSubobject<USphereComponent>(TEXT("MarbleCollider"));
 	MarbleCollider->SetupAttachment(PhysicsMesh);
