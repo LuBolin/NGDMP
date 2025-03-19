@@ -77,5 +77,4 @@ public:
 protected:
 	UFUNCTION()
 	virtual void BeginPlay() override;
-
 };

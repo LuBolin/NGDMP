@@ -85,8 +85,14 @@ void ATurnBasedGameState::BeginPlayerTurn()
 	}
 	
 	ABaseMarble* CurrentPossessedMarble = AMasterPlayerController::Instance->PossessedMarble;
-	bool PossessingActableMarble = CurrentPossessedMarble and not CurrentPossessedMarble->bReadyToLaunch; 
-	if (ActableMarble and not PossessingActableMarble)
+	bool PossessingActableMarble = CurrentPossessedMarble and CurrentPossessedMarble->bReadyToLaunch;
+	
+	if (PossessingActableMarble)
+	{
+		AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+		PlayerController->ForceFocusOnMarble(CurrentPossessedMarble);
+	}
+	else if (ActableMarble)
 	{
 		AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
 		PlayerController->ForceFocusOnMarble(ActableMarble);
@@ -189,8 +195,14 @@ void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 	}
 	
 	ABaseMarble* CurrentPossessedMarble = AMasterPlayerController::Instance->PossessedMarble;
-	bool PossessingActableMarble = CurrentPossessedMarble and not CurrentPossessedMarble->bReadyToLaunch;
-	if (ActableMarble and not PossessingActableMarble)
+	bool PossessingActableMarble = CurrentPossessedMarble and CurrentPossessedMarble->bReadyToLaunch;
+	
+	if (PossessingActableMarble)
+	{
+		AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
+		PlayerController->ForceFocusOnMarble(CurrentPossessedMarble);
+	}
+	else if (ActableMarble)
 	{
 		AMasterPlayerController *PlayerController = AMasterPlayerController::Instance;
 		PlayerController->ForceFocusOnMarble(ActableMarble);

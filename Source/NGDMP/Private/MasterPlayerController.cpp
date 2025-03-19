@@ -43,6 +43,7 @@ void AMasterPlayerController::ExitGame()
 
 void AMasterPlayerController::ForceFocusOnMarble(ABaseMarble* Marble)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Forcing focus on: %s"), *Marble->GetName());
 	// 1 delta ~= 1 frame
 	float FrameDelay = GetWorld()->GetDeltaSeconds();
 	
