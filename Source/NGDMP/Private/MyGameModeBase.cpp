@@ -3,6 +3,8 @@
 
 #include "MyGameModeBase.h"
 
+#include "Kismet/GameplayStatics.h"
+
 AMyGameModeBase* AMyGameModeBase::Instance = nullptr;
 FString AMyGameModeBase::ObjectiveCompleteMessage = "Objective Complete!";
 
@@ -20,11 +22,19 @@ void AMyGameModeBase::BeginPlay()
 void AMyGameModeBase::WinGame()
 {
 	OnGameEnd.Broadcast(true);
+	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerHandle, this, &AMyGameModeBase::GoToMainMenu, EndGameDelay, false);
 }
 
 void AMyGameModeBase::LoseGame()
 {
 	OnGameEnd.Broadcast(false);
+	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerHandle, this, &AMyGameModeBase::RestartLevel, EndGameDelay, false);
 }
 
 void AMyGameModeBase::Tick(float DeltaTime)
@@ -89,4 +99,14 @@ FString AMyGameModeBase::checkCollectAllStarsProgress()
 	else
 		output = FString::FromInt(CollectedPickupCount) + " / " + FString::FromInt(PickupCount) + " collected";
 	return output;
+}
+
+void AMyGameModeBase::RestartLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+}
+
+void AMyGameModeBase::GoToMainMenu()
+{
+	UGameplayStatics::OpenLevel(this, FName("MainMenuLevel"), false);
 }

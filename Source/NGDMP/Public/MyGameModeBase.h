@@ -68,6 +68,12 @@ public:
 
 	UPROPERTY()
 	FOnGameEnd OnGameEnd;
+
+	UFUNCTION()
+	void RestartLevel();
+
+	UFUNCTION()
+	void GoToMainMenu();
 	
 protected:
 	UFUNCTION()
@@ -75,5 +81,8 @@ protected:
 
 	UFUNCTION()
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY()
+	float EndGameDelay = 3.0f;
 
 };
