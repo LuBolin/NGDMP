@@ -10,7 +10,6 @@
 #include "Components/Border.h"
 #include "Components/VerticalBox.h"
 #include "Components/GridPanel.h"
-#include "Components/HorizontalBox.h"
 #include "PrimaryHUD.generated.h"
 
 /**
@@ -23,7 +22,7 @@ class NGDMP_API UPrimaryHUD : public UUserWidget
 
 public:
 	static constexpr float turnTransitionDuration = 1.2f;
-	
+
 protected:
 	virtual void NativeConstruct() override;
 	
