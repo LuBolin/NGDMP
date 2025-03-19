@@ -73,16 +73,40 @@ void UCombatComponent::SetMaxHealth(float NewMaxHealth, bool Sync)
 	}
 }
 
+// void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+// {
+// 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+//
+// 	for (auto& Elem : ImmunityMap)
+// 	{
+// 		Elem.Value -= DeltaTime;
+// 		if (Elem.Value <= 0.f)
+// 		{
+// 			ImmunityMap.Remove(Elem.Key);
+// 		}
+// 	}
+// }
+
+
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Collect keys to remove
+	TArray<AActor*> KeysToRemove;
 
 	for (auto& Elem : ImmunityMap)
 	{
 		Elem.Value -= DeltaTime;
 		if (Elem.Value <= 0.f)
 		{
-			ImmunityMap.Remove(Elem.Key);
+			KeysToRemove.Add(Elem.Key);
 		}
+	}
+
+	// Remove outside of loop
+	for (const AActor* Key : KeysToRemove)
+	{
+		ImmunityMap.Remove(Key);
 	}
 }

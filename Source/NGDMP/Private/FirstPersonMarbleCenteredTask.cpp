@@ -82,7 +82,7 @@ void UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask(bool bPress
 	BackwardUp.Z = 0;
 	BackwardUp.Normalize();
 	BackwardUp *= -1;
-	BackwardUp.Z = 2;
+	BackwardUp.Z = 1;
 	BackwardUp *= UThirdPersonMarbleCenteredTask::MinCamDist;
 	FVector MarblePosition = PossessedMarble->GetActorLocation();
 	PlayerController->SpectatePawn->SetActorLocation(MarblePosition + BackwardUp);

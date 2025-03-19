@@ -18,7 +18,6 @@ ADamageDealer::ADamageDealer()
 void ADamageDealer::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 
@@ -35,10 +34,19 @@ void ADamageDealer::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* Othe
 	// 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), CollisionParticle, Hit.ImpactPoint);
 	// }
 
-	FVector LastVelocity = OtherMarble->LastVelocity;
+	FVector OtherLastVelocity = OtherMarble->LastVelocity;
 	FVector TargetDirn = -Hit.ImpactNormal;
-	float Damage = CalculateDamage(LastVelocity, TargetDirn);
-	UE_LOG(LogTemp, Warning, TEXT("Dealing %f to %s"), Damage, *OtherMarble->GetName());
+	float DamageByOtherVel = CalculateDamage(OtherLastVelocity, TargetDirn);
+	
+	FVector OwnHitDirn = Hit.ImpactNormal;
+	float DamageByOwnVel = CalculateDamage(LastVelocity, OwnHitDirn);
+	
+	float Damage = DamageByOtherVel + DamageByOwnVel;
+
+	// if damage exists ( >0), then add base damage
+	if (Damage > 0.0f)
+		Damage += BaseDamage;
+	
 	OtherMarble->CombatComponent->TakeDamage(Damage, this);
 
 	// if Other Marble is still moving towards self,
@@ -56,11 +64,19 @@ void ADamageDealer::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* Othe
 
 float ADamageDealer::CalculateDamage(FVector Velocity, FVector TargetDirn)
 {
+	// if Velocity is approximately zero, return zero damage
+	if (Velocity.IsNearlyZero())
+		return 0.0f;
+	
 	// get velocity along the direction of the target
 	float ContributingSpeed = FVector::DotProduct(Velocity, TargetDirn);
 	float Damage = 0.5f * FMath::Pow((ContributingSpeed / 100.0), 2.0);
 	Damage *= DamageMultiplier;
-	Damage += BaseDamage;
 	return Damage;
+}
+
+void ADamageDealer::Tick(float DeltaTime)
+{
+	LastVelocity = GetVelocity();
 }
 

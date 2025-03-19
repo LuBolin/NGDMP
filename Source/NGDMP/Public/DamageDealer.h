@@ -20,6 +20,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
+	
 	UFUNCTION()
 	float CalculateDamage(FVector Velocity, FVector TargetDirn);
 	
@@ -28,4 +30,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseDamage = 30.0f;
+
+	UPROPERTY()
+	FVector LastVelocity;
 };

@@ -160,7 +160,9 @@ void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 		return;
 	
 	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *CurrentActor->GetName());
-	PlayerMarblesActable[CurrentActor] = false;
+	// needed to solve some edit while iterating issues
+	if (PlayerMarblesActable.Contains(CurrentActor))
+		PlayerMarblesActable[CurrentActor] = false;
 	ABaseMarble* ActableMarble = nullptr;
 	FVector CameraLocation = AMasterPlayerController::Instance->GetPawn()->GetActorLocation();
 
