@@ -156,7 +156,9 @@ void ATurnBasedGameState::CurrentEnemyActorEndTurn()
 
 void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 {
-	// log who ended their turn
+	if (not CurrentActor)
+		return;
+	
 	UE_LOG(LogTemp, Warning, TEXT("%s ended their turn"), *CurrentActor->GetName());
 	PlayerMarblesActable[CurrentActor] = false;
 	ABaseMarble* ActableMarble = nullptr;
@@ -210,7 +212,6 @@ void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 	{
 		EndTurn();
 	}
-	
 }
 
 void ATurnBasedGameState::EndTurnWrapper(bool bInput)

@@ -41,5 +41,7 @@ public:
 	
 	// Not putting mesh here due to scaling
 	// Easier to scale in the editor
-
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* AbilitySound;
 };

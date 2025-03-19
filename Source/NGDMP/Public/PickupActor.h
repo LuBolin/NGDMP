@@ -48,6 +48,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool bShouldRotate = true;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* PickupSound;
 	
 protected:
 	// Called when the game starts or when spawned

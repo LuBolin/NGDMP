@@ -84,5 +84,16 @@ protected:
 
 	UPROPERTY()
 	float EndGameDelay = 3.0f;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* StartSound;
+	
+	UPROPERTY(EditAnywhere)
+	USoundBase* WinSound;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* LoseSound;
+
+	UPROPERTY()
+	bool bEnded = false;
 };

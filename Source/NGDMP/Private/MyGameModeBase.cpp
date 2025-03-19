@@ -17,11 +17,25 @@ AMyGameModeBase ::AMyGameModeBase()
 void AMyGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (StartSound)
+	{
+		FVector Location = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), StartSound, Location);
+	}
 }
 
 void AMyGameModeBase::WinGame()
 {
 	OnGameEnd.Broadcast(true);
+
+	bEnded = true;
+	
+	if (WinSound)
+	{
+		FVector Location = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WinSound, Location);
+	}
 	
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -31,6 +45,15 @@ void AMyGameModeBase::WinGame()
 void AMyGameModeBase::LoseGame()
 {
 	OnGameEnd.Broadcast(false);
+
+	bEnded = true;
+	
+	if (LoseSound)
+	{
+		FVector Location = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), LoseSound, Location);
+	}
+		
 	
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -39,6 +62,9 @@ void AMyGameModeBase::LoseGame()
 
 void AMyGameModeBase::Tick(float DeltaTime)
 {
+	if (bEnded)
+		return;
+	
 	if (checkDestroyAllEnemiesProgress() == ObjectiveCompleteMessage
 		and checkCollectAllStarsProgress() == ObjectiveCompleteMessage)
 	{

@@ -25,7 +25,6 @@ public:
 	UFUNCTION()
 	void CameraMovement(FVector3f Input);
 	
-protected:
 	constexpr static float YawSpeed = 1.0f;
 	constexpr static float PitchSpeed = 1.0f;
 	constexpr static float ZoomBaseSpeed = 5.0f;
@@ -34,6 +33,8 @@ protected:
 	constexpr static float MaxPitch = 75.0f;
 	constexpr static float MinCamDist = 240.0f;
 	constexpr static float MaxCamDist = 1000.0f;
+	
+protected:
 	
 	virtual EStateTreeRunStatus EnterState(
 		FStateTreeExecutionContext& Context,

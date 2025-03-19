@@ -35,7 +35,7 @@ void ABaseEnemy::Act()
 	TArray<ABaseMarble*> PlayerMarbles;
 	TurnBasedGameState->PlayerMarblesActable.GetKeys(PlayerMarbles);
 	
-	constexpr float ConfidenceDistance = 1000.0f;
+	constexpr float ConfidenceDistance = 2500.0f;
 	// remove all marbles in PlayerMarbles that are dead or out of range
 	for (int i = 0; i < PlayerMarbles.Num(); i++)
 	{
@@ -62,13 +62,16 @@ void ABaseEnemy::Act()
 		FVector PlayerMarbleLocation = Marble->GetActorLocation();
 		FVector OwnLocation = GetActorLocation();
 		float Distance = FVector::Dist(PlayerMarbleLocation, OwnLocation);
-		float ConfidentToHitDist = 1000.0f;
-		if (Distance < ConfidentToHitDist)
+		if (Distance < ConfidenceDistance)
 		{
 			FHitResult HitResult;
 			FCollisionQueryParams CollisionParams;
-			CollisionParams.AddIgnoredActor(this);
-			CollisionParams.AddIgnoredActor(Marble);
+			TArray<ABaseEnemy*> EnemyMarbles;
+			TurnBasedGameState->EnemyActorsActable.GetKeys(EnemyMarbles);
+			for (ABaseEnemy* Enemy : EnemyMarbles)
+			{
+				CollisionParams.AddIgnoredActor(Enemy);
+			}
 			bool bHit = GetWorld()->LineTraceSingleByChannel(
 				HitResult, OwnLocation, PlayerMarbleLocation, ECollisionChannel::ECC_Visibility, CollisionParams);
 
@@ -78,8 +81,8 @@ void ABaseEnemy::Act()
 				HasVisiblePlayerInRange = true;
 				break;
 			} else {
-				// 50% chance to normalize the direction about its own plane and launch off anyways
-				if (FMath::RandRange(0, 1) == 1)
+				// 10% chance to normalize the direction about its own plane and launch off anyways
+				if (FMath::RandRange(0, 9) == 1)
 				{
 					FVector Normal = GetPlaneNormal();
 					LaunchDirection = (PlayerMarbleLocation - OwnLocation).GetSafeNormal();
@@ -91,13 +94,14 @@ void ABaseEnemy::Act()
 			}
 		}
 	}
+	
 	if (not HasVisiblePlayerInRange)
 	{
 		FVector Normal = GetPlaneNormal();
-		// 50% chance to move randomly
-		// 50% chance to "be dumb" and move towards the nearest marble anyways
-		// check if playermarbles is empty
-		if (FMath::RandRange(0, 1) == 1 or PlayerMarbles.Num() == 0)
+		// 20% chance to move randomly
+		// 80% chance to "be dumb" and move towards the nearest marble anyways
+		// check if PlayerMarbles is empty
+		if (FMath::RandRange(0, 4) == 0 or PlayerMarbles.Num() == 0)
 		{
 			LaunchDirection = GetRandomVectorOnPlane(Normal);
 		} else

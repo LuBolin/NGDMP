@@ -8,6 +8,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "MyGameModeBase.h"
 #include "TurnBasedGameState.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ABaseMarble::ABaseMarble()
@@ -227,6 +228,7 @@ void ABaseMarble::PossessUpdateOutlineMaterialInstance(ABaseMarble* PossessedMar
 void ABaseMarble::UpdateStatusValues()
 {
 	bool Awake = PhysicsMesh->IsAnyRigidBodyAwake();
+	
 	if (bTakingTurn and not Awake) // physics has been put to sleep due to Physics Material's Sleep Threshold
 	{
 		// Marble has stopped
@@ -454,5 +456,12 @@ void ABaseMarble::UseAbility(bool bPressed)
 		return;
 	
 	FOnUseAbility.Broadcast();
+	USoundBase* AbilitySound = AnimalDataAsset->AbilitySound;
+	if (AbilitySound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AbilitySound, GetActorLocation());
+		UE_LOG(LogTemp, Warning, TEXT("%s has been used"), *GetName());
+	}
+		
 }
 

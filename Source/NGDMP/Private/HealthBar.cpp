@@ -26,8 +26,11 @@ void UHealthBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 
 	HealthBar->SetPercent(CombatComponent->CurrentHealth / CombatComponent->MaxHealth);
-	CurrentHealthLabel->SetText(FText::FromString(FString::SanitizeFloat(CombatComponent->CurrentHealth)));
-	MaxHealthLabel->SetText(FText::FromString(FString::SanitizeFloat(CombatComponent->MaxHealth)));
+	// up to 2 decimal places
+	FString CurrentHealthString = FString::Printf(TEXT("%.2f"), CombatComponent->CurrentHealth);
+	FString MaxHealthString = FString::Printf(TEXT("%.2f"), CombatComponent->MaxHealth);
+	CurrentHealthLabel->SetText(FText::FromString(CurrentHealthString));
+	MaxHealthLabel->SetText(FText::FromString(MaxHealthString));
 
 }
 

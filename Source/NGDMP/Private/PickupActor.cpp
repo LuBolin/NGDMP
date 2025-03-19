@@ -8,6 +8,7 @@
 #include "MyGameModeBase.h"
 #include "NiagaraFunctionLibrary.h"
 #include "TurnBasedGameState.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APickupActor::APickupActor()
@@ -52,6 +53,7 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (bCollected)
 		return;
+	
 	if (OtherActor->IsA<ABaseMarble>() and not OtherActor->IsA<ABaseEnemy>())
 	{
 		ABaseMarble* Marble = Cast<ABaseMarble>(OtherActor);
@@ -64,6 +66,11 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PickupParticle, GetActorLocation());
 		}
 		OnPickup.Broadcast(Marble);
+
+		if (PickupSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
+		}	
 	}
 }
 
