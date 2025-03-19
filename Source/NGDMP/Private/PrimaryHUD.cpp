@@ -154,7 +154,10 @@ void UPrimaryHUD::ShowFinishOverlay(bool bWin)
 	bGameEnded = true;
 	
 	FinishOverlay->SetVisibility(ESlateVisibility::Visible);
-	FinishText->SetText(FText::FromString(bWin ? "You Win!" : "You Lose!"));
+	FString WinText = "You Win! \n Going to main menu";
+	FString LoseText = "You Lose! \n Restarting level";
+	FinishText->SetText(FText::FromString(bWin ? WinText : LoseText));
+	
 	// set brush color, while keeping opacity
 	float opacity = FinishOverlay->GetBrushColor().A;
 	FLinearColor color = bWin ? FLinearColor::Green : FLinearColor::Red;
