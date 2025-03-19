@@ -6,8 +6,7 @@
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
-	// This component does not tick, it can work on purely event driven logic
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	
 	MaxHealth = 100.f;
 	CurrentHealth = MaxHealth;
@@ -28,21 +27,20 @@ void UCombatComponent::TakeDamage(float Damage, AActor* Source)
 {
 	if (Damage <= 0.f || CurrentHealth <= 0.f)
 		return;
-	
-	// if (Source)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("%s is taking %f damage from %s"), *GetOwner()->GetName(), Damage, *Source->GetName());
-	// } else
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Taking %f damage"), Damage);	
-	// }
-	
 
+	if (ImmunityMap.Contains(Source))
+		return;
+
+	ImmunityMap.Add(Source, ImmunityDuration);
+	
+	Damage = FMath::RoundToFloat(Damage * 100.f) / 100.f;
+	
+		
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
 
 	OnHealthChanged.Broadcast(CurrentHealth);
 
-	if (CurrentHealth <= 0.f)
+	if (CurrentHealth <= 0.0f)
 	{
 		OnDeath.Broadcast();
 	}
@@ -72,5 +70,19 @@ void UCombatComponent::SetMaxHealth(float NewMaxHealth, bool Sync)
 	{
 		CurrentHealth = NewCurrentHealth;
 		OnHealthChanged.Broadcast(CurrentHealth);
+	}
+}
+
+void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	for (auto& Elem : ImmunityMap)
+	{
+		Elem.Value -= DeltaTime;
+		if (Elem.Value <= 0.f)
+		{
+			ImmunityMap.Remove(Elem.Key);
+		}
 	}
 }

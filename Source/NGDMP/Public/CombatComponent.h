@@ -25,6 +25,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void TakeDamage(float Damage, AActor* Source = nullptr);
@@ -46,5 +48,13 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeathDelegate OnDeath;
+
+	// after taking damage from a source,
+	// be immune from it for this duration
+	UPROPERTY()
+	float ImmunityDuration = 0.5f;
+	
+	UPROPERTY()
+	TMap<AActor*, float> ImmunityMap;
 
 };

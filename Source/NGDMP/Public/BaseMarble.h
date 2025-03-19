@@ -112,6 +112,9 @@ public:
 	UFUNCTION()
 	void UseAbility(bool bPressed);
 	
+	UPROPERTY()
+	FVector LastVelocity = FVector::ZeroVector;
+	
 protected:
 	const float MaxDistToRenderStatusLabel = 2000.0f;
 	
@@ -180,9 +183,6 @@ private:
 	
 	UPROPERTY()
 	int SleepCounter = 0;
-
-	UPROPERTY()
-	FVector LastVelocity = FVector::ZeroVector;
 
 	UFUNCTION()
 	void OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

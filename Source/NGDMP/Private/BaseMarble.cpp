@@ -16,6 +16,8 @@ ABaseMarble::ABaseMarble()
 	PhysicsMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Marble"));
 	PhysicsMesh->SetSimulatePhysics(true);
 	PhysicsMesh->SetGenerateOverlapEvents(true);
+	if (AnimalDataAsset)
+		PhysicsMesh->SetMassOverrideInKg("", AnimalDataAsset->MassInKg);
 	RootComponent = PhysicsMesh;
 	MarbleCollider = CreateDefaultSubobject<USphereComponent>(TEXT("MarbleCollider"));
 	MarbleCollider->SetupAttachment(PhysicsMesh);
@@ -333,6 +335,8 @@ void ABaseMarble::InitComponents()
 	// log max health
 	UE_LOG(LogTemp, Warning, TEXT("Max Health: %f"), AnimalDataAsset->MaxHealth);
 	CombatComponent->SetMaxHealth(AnimalDataAsset->MaxHealth, true);
+
+	PhysicsMesh->SetMassOverrideInKg("", AnimalDataAsset->MassInKg);
 	
 	InitOutlineMaterialInstance();
 

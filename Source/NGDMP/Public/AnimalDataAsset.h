@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float MaxLaunchForce = 600.0f;
 
+	UPROPERTY(EditAnywhere)
+	float MassInKg = 100.0f;
+	
 	// how long after casting ability
 	// to transition to third person camera
 	// a negative value means do not auto transition
