@@ -3,6 +3,7 @@
 
 #include "MyGameModeBase.h"
 
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AMyGameModeBase* AMyGameModeBase::Instance = nullptr;
@@ -22,6 +23,13 @@ void AMyGameModeBase::BeginPlay()
 	{
 		FVector Location = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), StartSound, Location);
+	}
+
+	if (BackgroundMusic)
+	{
+		UAudioComponent* BackgroundMusicComponent = UGameplayStatics::SpawnSound2D(GetWorld(), BackgroundMusic);
+		float FadeInDurn = 2.0f;
+		BackgroundMusicComponent->FadeIn(FadeInDurn);
 	}
 }
 
