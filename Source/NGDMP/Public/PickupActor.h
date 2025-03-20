@@ -51,6 +51,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	USoundBase* PickupSound;
+
+	UPROPERTY(EditAnywhere)
+	bool bReuseable = false;
 	
 protected:
 	// Called when the game starts or when spawned

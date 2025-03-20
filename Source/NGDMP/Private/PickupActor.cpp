@@ -34,6 +34,9 @@ void APickupActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (bIsObjective)
+		bReuseable = false;
+	
 	AddToGameModeAndState();
 }
 
@@ -57,14 +60,19 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	if (OtherActor->IsA<ABaseMarble>() and not OtherActor->IsA<ABaseEnemy>())
 	{
 		ABaseMarble* Marble = Cast<ABaseMarble>(OtherActor);
-		bCollected = true;
-		ObjectMesh->SetVisibility(false);
-		PickupCollider->SetVisibility(false);
-		PickupIndicatorMesh->SetVisibility(false);
+		if (not bReuseable)
+		{
+			bCollected = true;
+			ObjectMesh->SetVisibility(false);
+			PickupCollider->SetVisibility(false);
+			PickupIndicatorMesh->SetVisibility(false);			
+		}
+		
 		if (PickupParticle)
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), PickupParticle, GetActorLocation());
 		}
+		
 		OnPickup.Broadcast(Marble);
 
 		if (PickupSound)
