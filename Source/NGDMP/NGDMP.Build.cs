@@ -13,22 +13,26 @@ public class NGDMP : ModuleRules
 			"Core", "CoreUObject", 
 			"Engine", "InputCore", 
 			"EnhancedInput", "GameplayTags",
-			"StateTreeModule", "GameplayStateTreeModule",
-			"UMG", "Slate", "SlateCore", "Niagara"
+			"UMG", "Niagara"
 		});
+		System.Console.WriteLine("NGDMP Target.Type: " + Target.Type);
 		
-		if (Target.Type == TargetType.Editor)
+		if (Target.bBuildEditor)
 		{
+			PrivateDependencyModuleNames.AddRange(new string[] {
+				"UnrealEd",
+				"Slate", "SlateCore", 
+				"StateTreeModule", "GameplayStateTreeModule"
+			});
+			
 			PublicDependencyModuleNames.AddRange(new string[]
 			{
+				"AssetTools",
 				"StateTreeEditorModule",
-				"AssetTools", // Only needed for the editor
 				"StateTreeTestSuite",
 				"UMGEditor",
 			});
 		}
-		
-		PrivateDependencyModuleNames.AddRange(new string[] { });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
