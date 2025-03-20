@@ -46,6 +46,7 @@ void ABaseEnemy::Act()
 			i--;
 		}
 	}
+	
 	// sort PlayerMarbles by distance
 	PlayerMarbles.Sort([this](ABaseMarble& A, ABaseMarble& B) {
 		FVector ALocation = A.GetActorLocation();
@@ -56,41 +57,41 @@ void ABaseEnemy::Act()
 		return ADistance < BDistance;
 	});
 	
+	FHitResult HitResult;
+	TArray<ABaseEnemy*> EnemyMarbles;
+	TurnBasedGameState->EnemyActorsActable.GetKeys(EnemyMarbles);
+	
 	bool HasVisiblePlayerInRange = false;
 	for (ABaseMarble *Marble : PlayerMarbles)
 	{
 		FVector PlayerMarbleLocation = Marble->GetActorLocation();
 		FVector OwnLocation = GetActorLocation();
-		float Distance = FVector::Dist(PlayerMarbleLocation, OwnLocation);
-		if (Distance < ConfidenceDistance)
+		
+		FCollisionQueryParams CollisionParams;
+		for (ABaseEnemy* Enemy : EnemyMarbles)
 		{
-			FHitResult HitResult;
-			FCollisionQueryParams CollisionParams;
-			TArray<ABaseEnemy*> EnemyMarbles;
-			TurnBasedGameState->EnemyActorsActable.GetKeys(EnemyMarbles);
-			for (ABaseEnemy* Enemy : EnemyMarbles)
-			{
-				CollisionParams.AddIgnoredActor(Enemy);
-			}
-			bool bHit = GetWorld()->LineTraceSingleByChannel(
-				HitResult, OwnLocation, PlayerMarbleLocation, ECollisionChannel::ECC_Visibility, CollisionParams);
+			CollisionParams.AddIgnoredActor(Enemy);
+		}
+		CollisionParams.AddIgnoredActor(Marble);
+		
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult, OwnLocation, PlayerMarbleLocation, ECollisionChannel::ECC_Visibility, CollisionParams);
 
-			if (not bHit) // clear hit
+		if (not bHit) // clear hit
+		{
+			LaunchDirection = (PlayerMarbleLocation - OwnLocation).GetSafeNormal();
+			HasVisiblePlayerInRange = true;
+			break;
+		} else {
+			// 10% chance to normalize the direction about its own plane and launch off anyways
+			if (FMath::RandRange(0, 9) == 1)
 			{
+				FVector Normal = GetPlaneNormal();
 				LaunchDirection = (PlayerMarbleLocation - OwnLocation).GetSafeNormal();
+				// project launch_direction onto the normal plane
+				LaunchDirection = LaunchDirection - FVector::DotProduct(LaunchDirection, Normal) * Normal;
 				HasVisiblePlayerInRange = true;
 				break;
-			} else {
-				// 10% chance to normalize the direction about its own plane and launch off anyways
-				if (FMath::RandRange(0, 9) == 1)
-				{
-					FVector Normal = GetPlaneNormal();
-					LaunchDirection = (PlayerMarbleLocation - OwnLocation).GetSafeNormal();
-					// project launch_direction onto the normal plane
-					LaunchDirection = LaunchDirection - FVector::DotProduct(LaunchDirection, Normal) * Normal;
-					HasVisiblePlayerInRange = true;
-					break;
-				}
 			}
 		}
 	}
