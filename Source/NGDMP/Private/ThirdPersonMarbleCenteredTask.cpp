@@ -3,9 +3,12 @@
 
 #include "ThirdPersonMarbleCenteredTask.h"
 #include "MasterPlayerController.h"
+#include "MyGameModeBase.h"
+#include "PrimaryHUD.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "StateTreeExecutionContext.h"
 #include "TurnBasedGameState.h"
+#include "Kismet/GameplayStatics.h"
 
 // EnterState
 EStateTreeRunStatus UThirdPersonMarbleCenteredTask::EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition)
@@ -181,11 +184,16 @@ void UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask(bool bActionP
 		// check if gamestate has a current actor
 		if (TurnBasedGameState->CurrentActor)
 		{
-			// it is still actor's name's turn. \n please wait until all marbles stop moving
-			FString Message = FString::Printf(TEXT("It is still %s's turn. \nPlease wait until all marbles stop moving"),
-				*TurnBasedGameState->CurrentActor->GetName());
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Message);
-			UE_LOG(LogTemp, Display, TEXT("%s"), *Message);
+			ABaseMarble* CurrentMarble = TurnBasedGameState->CurrentActor;
+			FString Message = FString::Printf(TEXT("Still %s's turn\nWait for all marbles to stop"),
+				*CurrentMarble->AnimalDataAsset->AnimalName);
+			// GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Message);
+			AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+			UPrimaryHUD* PrimaryHUD = GameMode->PrimaryHUD;
+			if (PrimaryHUD)
+			{
+				PrimaryHUD->ShowInfoBanner(Message, FLinearColor::Yellow, 2.0f);
+			}
 		}
 		else
 		{

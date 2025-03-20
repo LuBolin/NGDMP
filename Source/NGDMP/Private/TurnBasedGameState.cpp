@@ -79,7 +79,6 @@ void ATurnBasedGameState::BeginPlayerTurn()
 					ActableMarble = Marble;
 			}
 			
-			
 			Marble->GetReadyForNewTurn();
 		}
 	}
@@ -150,8 +149,18 @@ void ATurnBasedGameState::EnemyActorStartTurn()
 void ATurnBasedGameState::CurrentEnemyActorEndTurn()
 {
 	FTimerHandle EnemyActingTimerHandle;
-	float ArbitraryDelay = 0.5f;
+	float ArbitraryDelay = 1.5f;
 	GetWorldTimerManager().SetTimer(EnemyActingTimerHandle, this, &ATurnBasedGameState::EnemyActorStartTurn, ArbitraryDelay, false);
+
+	FString Message = FString::Printf(TEXT("%s's turn ended"),
+		*CurrentActor->AnimalDataAsset->AnimalName);
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	UPrimaryHUD* PrimaryHUD = GameMode->PrimaryHUD;
+	if (PrimaryHUD)
+	{
+		PrimaryHUD->ShowInfoBanner(Message, FLinearColor::Red, 1.0f);
+	}
+	
 }
 
 void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
@@ -198,6 +207,14 @@ void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 		}
 	}
 	
+	FString Message = FString::Printf(TEXT("%s's turn ended"),
+		*CurrentActor->AnimalDataAsset->AnimalName);
+	UPrimaryHUD* PrimaryHUD = GameMode->PrimaryHUD;
+	if (PrimaryHUD)
+	{
+		PrimaryHUD->ShowInfoBanner(Message, FLinearColor::Green, 1.0f);
+	}
+	
 	ABaseMarble* CurrentPossessedMarble = AMasterPlayerController::Instance->PossessedMarble;
 	bool PossessingActableMarble = CurrentPossessedMarble and CurrentPossessedMarble->bReadyToLaunch;
 	
@@ -212,7 +229,9 @@ void ATurnBasedGameState::CurrentPlayerMarbleEndTurn()
 		PlayerController->ForceFocusOnMarble(ActableMarble);
 	} else
 	{
-		EndTurn();
+		FTimerHandle EndTurnHandle;
+		float ArbitraryDelay = 1.5f;
+		GetWorldTimerManager().SetTimer(EndTurnHandle, this, &ATurnBasedGameState::EndTurn, ArbitraryDelay, false);
 	}
 }
 

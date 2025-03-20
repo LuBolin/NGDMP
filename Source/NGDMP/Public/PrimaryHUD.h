@@ -22,7 +22,10 @@ class NGDMP_API UPrimaryHUD : public UUserWidget
 
 public:
 	static constexpr float turnTransitionDuration = 1.2f;
-
+		
+	UFUNCTION()
+	void ShowInfoBanner(FString info, FLinearColor backgroundColor, float duration);
+	
 protected:
 	virtual void NativeConstruct() override;
 	
@@ -72,6 +75,9 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* InfoBannerText;
+
+	UPROPERTY()
+	FTimerHandle InfoBannerTimerHandle;
 	
 private:
 	UFUNCTION()
@@ -97,10 +103,7 @@ private:
 	
 	UFUNCTION()
 	void ShowTurnTransition(ETurnState TurnState);
-	
-	UFUNCTION()
-	void ShowInfoBanner(FString info, FLinearColor backgroundColor, float duration);
-	
+
 	UFUNCTION()
 	void HideInfoBanner();
 };

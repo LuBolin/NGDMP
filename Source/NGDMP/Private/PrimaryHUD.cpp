@@ -24,9 +24,11 @@ void UPrimaryHUD::NativeConstruct()
 
 	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
 	GameMode->OnGameEnd.AddDynamic(this, &UPrimaryHUD::ShowFinishOverlay);
-
+	GameMode->PrimaryHUD = this;
+	
 	ATurnBasedGameState* GameState = ATurnBasedGameState::GetInstance();
 	GameState->F_TurnStarted.AddDynamic(this, &UPrimaryHUD::ShowTurnTransition);
+	
 }
 
 // Change this to binding if performance is an issue
@@ -176,10 +178,14 @@ void UPrimaryHUD::ShowInfoBanner(FString info, FLinearColor backgroundColor, flo
 {
 	InfoBanner->SetVisibility(ESlateVisibility::Visible);
 	InfoBannerText->SetText(FText::FromString(info));
+	
 	constexpr float backgroundOpacity = 0.4f;
 	backgroundColor.A = backgroundOpacity;
 	InfoBanner->SetBrushColor(backgroundColor);
-	FTimerHandle InfoBannerTimerHandle;
+
+	// Override previous timer
+	GetWorld()->GetTimerManager().ClearTimer(InfoBannerTimerHandle);
+
 	GetWorld()->GetTimerManager().SetTimer(
 		InfoBannerTimerHandle, this, &UPrimaryHUD::HideInfoBanner, duration, false);
 }

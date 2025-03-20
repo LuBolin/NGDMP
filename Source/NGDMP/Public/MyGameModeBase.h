@@ -7,6 +7,7 @@
 #include "BaseMarble.h"
 #include "BaseEnemy.h"
 #include "PickupActor.h"
+#include "PrimaryHUD.h"
 #include "MyGameModeBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEnd, bool, bHasWon);
@@ -74,6 +75,9 @@ public:
 
 	UFUNCTION()
 	void GoToMainMenu();
+
+	UPROPERTY()
+	UPrimaryHUD* PrimaryHUD;
 	
 protected:
 	UFUNCTION()
