@@ -444,6 +444,9 @@ void ABaseMarble::Die()
 	StatusLabel->SetVisibility(false);
 	HealthBar->SetVisibility(false);
 	OutlineMesh->SetVisibility(false);
+
+	// Actually nvm, just hide
+	AnimalMesh->SetVisibility(false);
 	
 	FVector NewLocation = GetActorLocation();
 	NewLocation.Z += 10.0f * Radius;

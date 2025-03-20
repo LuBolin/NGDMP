@@ -123,7 +123,6 @@ protected:
 
 	UFUNCTION()
 	virtual void Tick(float DeltaTime) override;
-
 	
 	UFUNCTION()
 	FVector GetRandomVectorOnPlane(FVector Normal);

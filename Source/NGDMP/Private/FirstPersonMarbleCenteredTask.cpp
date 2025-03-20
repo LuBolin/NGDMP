@@ -75,10 +75,13 @@ void UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask(bool bPress
 {
 	// position camera diagonally behind the marble
 	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
-	FVector TravelDirection = PossessedMarble->GetVelocity();
-	if (TravelDirection.Size() == 0.0f)
-		TravelDirection = PossessedMarble->AnimalCameraSpringArm->GetForwardVector();
-	FVector BackwardUp = TravelDirection;
+	// FVector TravelDirection = PossessedMarble->GetVelocity();
+	// if (TravelDirection.Size() == 0.0f)
+	// 	TravelDirection = PossessedMarble->AnimalCameraSpringArm->GetForwardVector();
+	// FVector BackwardUp = TravelDirection;
+	APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager;
+	FVector CameraDirection = CameraManager->GetCameraRotation().Vector();
+	FVector BackwardUp = CameraDirection;
 	BackwardUp.Z = 0;
 	BackwardUp.Normalize();
 	BackwardUp *= -1;
