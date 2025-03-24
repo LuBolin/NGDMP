@@ -13,7 +13,8 @@ public class NGDMP : ModuleRules
 			"Core", "CoreUObject", 
 			"Engine", "InputCore", 
 			"EnhancedInput", "GameplayTags",
-			"UMG", "Niagara"
+			"StateTreeModule", "GameplayStateTreeModule",
+            "UMG", "Niagara"
 		});
 		System.Console.WriteLine("NGDMP Target.Type: " + Target.Type);
 		
@@ -21,8 +22,7 @@ public class NGDMP : ModuleRules
 		{
 			PrivateDependencyModuleNames.AddRange(new string[] {
 				"UnrealEd",
-				"Slate", "SlateCore", 
-				"StateTreeModule", "GameplayStateTreeModule"
+				"Slate", "SlateCore"
 			});
 			
 			PublicDependencyModuleNames.AddRange(new string[]

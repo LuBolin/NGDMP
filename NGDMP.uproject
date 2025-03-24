@@ -10,8 +10,6 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"StateTreeModule",
-				"StateTreeEditorModule",
 				"UMG"
 			]
 		}
@@ -26,6 +24,10 @@
 		},
 		{
 			"Name": "GameplayStateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "StateTree",
 			"Enabled": true
 		}
 	]
