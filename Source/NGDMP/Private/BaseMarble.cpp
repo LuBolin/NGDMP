@@ -265,6 +265,16 @@ void ABaseMarble::SyncWithVelocityDirection()
 		SetActorRotation(VelRotation);
 		// set AnimalMesh to face the same direction as the marble
 		AnimalMesh->SetWorldRotation(VelRotation);
+	} else
+	{
+		// set actor's rotation to be on the normal plane
+		FVector PlaneNormal = GetPlaneNormal();
+		FRotator CurrentRotation = GetActorRotation();
+		FVector CurrentForward = CurrentRotation.Vector();
+		FVector ProjectedForward = FVector::VectorPlaneProject(CurrentForward, PlaneNormal);
+		FRotator NewRotation = ProjectedForward.Rotation();
+		SetActorRotation(NewRotation);
+		AnimalMesh->SetWorldRotation(NewRotation);
 	}
 }
 

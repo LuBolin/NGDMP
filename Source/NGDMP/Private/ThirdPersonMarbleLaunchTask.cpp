@@ -4,6 +4,7 @@
 #include "ThirdPersonMarbleLaunchTask.h"
 #include "MasterPlayerController.h"
 #include "StateTreeExecutionContext.h"
+#include "Components/LineBatchComponent.h"
 
 #include "DrawDebugHelpers.h"
 #include "FirstPersonMarbleCenteredTask.h"
@@ -98,8 +99,21 @@ void UThirdPersonMarbleLaunchTask::RenderControlLine()
 	MouseDirection = MouseDirection.GetClampedToMaxSize(launchMaxLength);
 	MouseWorldProjection = MouseDirection + MarbleBottom;
 	
-	DrawDebugLine(GetWorld(), MarbleBottom, MouseWorldProjection,
-		FColor::Red, false, DeltaTime, 1, 4.0f);
+	// DrawDebugLine(GetWorld(), MarbleBottom, MouseWorldProjection,
+	// 	FColor::Red, false, DeltaTime, 1, 4.0f);
+
+	float LifeTime = DeltaTime;
+
+	ULineBatchComponent* LineBatcher = GetWorld()->LineBatcher;
+
+	if (LineBatcher)
+	{
+		FVector LineStart = MarbleBottom;
+		FVector LineEnd = MouseWorldProjection;
+		float Thickness = 4.0f;
+		FColor LineColor = FColor::Black;
+		LineBatcher->DrawLine(LineStart, LineEnd, LineColor, SDPG_Foreground, Thickness, LifeTime);
+	}
 }
 
 void UThirdPersonMarbleLaunchTask::RenderLaunchMaxCircle()
@@ -116,16 +130,45 @@ void UThirdPersonMarbleLaunchTask::RenderLaunchMaxCircle()
 	FVector Down = FVector(0.0f, 0.0f, -1.0f);
 	FVector MarbleBottom = PossessedMarble->GetActorLocation()
 		+ Down * PossessedMarble->Radius;
+	
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
-	// use YAxis and ZAxis to adjust the draw plane
-	// the circle will be drawn on the plane of the marble
+	bool bPersistentLines = false;
+	bool bDepthIsForeground = (0 == SDPG_Foreground);
+	
+	ULineBatchComponent* LineBatcher = GetWorld()->LineBatcher;
+
+	if (!LineBatcher)
+		return;
+
 	FVector MouseDirection = MouseWorldProjection - MarbleBottom;
 	FVector CircleY = MouseDirection.GetSafeNormal();
 	FVector CircleZ = FVector::CrossProduct(CircleY, Down).GetSafeNormal();
-	// get 2 vectors that represent this plane that the 
-	DrawDebugCircle(GetWorld(), MarbleBottom, launchMaxLength, 32,
-		FColor::Green, false, DeltaTime, 0, 4.0f,
-		CircleY, CircleZ, true);
+
+	const int32 NumSegments = 32;
+	const float AngleStep = 2.0f * PI / NumSegments;
+	FColor CircleColor = FColor::Green;
+	float Thickness = 4.0f;
+
+	// Draw circle outline
+	for (int32 i = 0; i < NumSegments; ++i)
+	{
+		float Angle1 = i * AngleStep;
+		float Angle2 = (i + 1) * AngleStep;
+
+		FVector Point1 = MarbleBottom + launchMaxLength * (FMath::Cos(Angle1) * CircleY + FMath::Sin(Angle1) * CircleZ);
+		FVector Point2 = MarbleBottom + launchMaxLength * (FMath::Cos(Angle2) * CircleY + FMath::Sin(Angle2) * CircleZ);
+
+		LineBatcher->DrawLine(Point1, Point2, CircleColor, SDPG_Foreground, Thickness, DeltaTime);
+	}
+
+	// Draw axis lines
+	FVector AxisYStart = MarbleBottom - CircleY * launchMaxLength;
+	FVector AxisYEnd = MarbleBottom + CircleY * launchMaxLength;
+	FVector AxisZStart = MarbleBottom - CircleZ * launchMaxLength;
+	FVector AxisZEnd = MarbleBottom + CircleZ * launchMaxLength;
+
+	LineBatcher->DrawLine(AxisYStart, AxisYEnd, FColor::Blue, SDPG_Foreground, Thickness, DeltaTime);   // Y axis
+	LineBatcher->DrawLine(AxisZStart, AxisZEnd, FColor::Red, SDPG_Foreground, Thickness, DeltaTime);    // Z axis
 }
 
 
