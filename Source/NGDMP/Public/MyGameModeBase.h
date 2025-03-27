@@ -12,6 +12,9 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEnd, bool, bHasWon);
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePause, bool, bIsPaused);
+
 /**
  * 
  */
@@ -69,6 +72,9 @@ public:
 
 	UPROPERTY()
 	FOnGameEnd OnGameEnd;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnGamePause OnGamePause;
 
 	UFUNCTION()
 	void RestartLevel();

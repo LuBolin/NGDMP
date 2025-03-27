@@ -5,6 +5,7 @@
 #include "MasterPlayerController.h"
 #include "BaseMarble.h"
 #include "BaseEnemy.h"
+#include "MyGameModeBase.h"
 #include "StateTreeExecutionTypes.h"
 
 
@@ -23,13 +24,10 @@ EStateTreeRunStatus UThirdPersonFreeCameraTask::EnterState(FStateTreeExecutionCo
 	
 	PlayerController->PossessedMarble = nullptr;
 	PlayerController->FPossess_Updated.Broadcast(nullptr);
-
 	
-	
-	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
-	PlayerController->bShowMouseCursor = false;
-	// setting input mode updates capture immedately
-	PlayerController->SetInputMode(FInputModeGameOnly());
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.AddDynamic(this, &UThirdPersonFreeCameraTask::SetupMousecaptureAndFocus);
+	SetupMousecaptureAndFocus(false);
 	
 	return EStateTreeRunStatus::Running;
 }
@@ -42,6 +40,9 @@ void UThirdPersonFreeCameraTask::ExitState(FStateTreeExecutionContext& Context, 
 	PlayerController->FIA_Interact.RemoveDynamic(this, &UThirdPersonFreeCameraTask::PossessAimedPawn);
 	PlayerController->FIA_Toggle.RemoveDynamic(this, &UThirdPersonFreeCameraTask::ToThirdPersonMarbleCenteredTask);
 
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.RemoveDynamic(this, &UThirdPersonFreeCameraTask::SetupMousecaptureAndFocus);
+	
 	Super::ExitState(Context, Transition);
 }
 
@@ -131,4 +132,15 @@ void UThirdPersonFreeCameraTask::ToThirdPersonMarbleCenteredTask(bool bInspect)
 	
 	// FinishTask(true); // why does this not trigger the transition?
 	PlayerController->SendStateTreeEventByTagString("Marble.ThirdPerson");
+}
+
+void UThirdPersonFreeCameraTask::SetupMousecaptureAndFocus(bool bIsPaused)
+{
+	if (bIsPaused)
+		return;
+
+	// setting input mode updates capture immediately
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
+	PlayerController->SetInputMode(FInputModeGameOnly());
+	PlayerController->bShowMouseCursor = false;
 }

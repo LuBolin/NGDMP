@@ -24,16 +24,20 @@ EStateTreeRunStatus UThirdPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 	PlayerController->FPossess_Updated.Broadcast(
 		PlayerController->PossessedMarble);
 
-	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
-	PlayerController->bShowMouseCursor = true;
-
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.AddDynamic(this, &UThirdPersonMarbleCenteredTask::SetupMousecaptureAndFocus);
+	SetupMousecaptureAndFocus(false);
+	
 	CameraOffset = PlayerController->GetPawn()->GetActorLocation()
 		- PlayerController->PossessedMarble->GetActorLocation();
 
 	bCenteredOnMarble = false;
+	// force a tick, so if we are already centered, we don't have to wait for the next tick
+	Tick(Context, 0.0f);
 
 	// SetViewTarget with blend to spectator pawn
 	PlayerController->SetViewTargetWithBlend(PlayerController->GetPawn(), 0.5f, EViewTargetBlendFunction::VTBlend_Linear, 0.0f, false);
+	
 	
 	return EStateTreeRunStatus::Running;
 }
@@ -45,9 +49,10 @@ void UThirdPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 	PlayerController->FIA_Escape.RemoveDynamic(this, &UThirdPersonMarbleCenteredTask::ToThirdPersonFreeCameraTask);
 	PlayerController->FIA_Toggle.RemoveDynamic(this, &UThirdPersonMarbleCenteredTask::ToFirstPersonMarbleCenteredTask);
 	PlayerController->FIA_MainAction.RemoveDynamic(this, &UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask);
-	
-	PlayerController->bShowMouseCursor = false;
 
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.RemoveDynamic(this, &UThirdPersonMarbleCenteredTask::SetupMousecaptureAndFocus);
+	
 	Super::ExitState(Context, Transition);
 }
 
@@ -209,4 +214,18 @@ void UThirdPersonMarbleCenteredTask::ToThirdPersonMarbleLaunchTask(bool bActionP
 void UThirdPersonMarbleCenteredTask::ToFirstPersonMarbleCenteredTask(bool bInspect)
 {
 	PlayerController->SendStateTreeEventByTagString("Marble.FirstPerson");
+}
+
+void UThirdPersonMarbleCenteredTask::SetupMousecaptureAndFocus(bool bIsPaused)
+{
+	if (bIsPaused)
+		return;
+
+	// setting input mode updates capture immediately
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
+	FInputModeGameOnly InputMode = FInputModeGameOnly();
+	InputMode.SetConsumeCaptureMouseDown(false);
+	PlayerController->SetInputMode(InputMode);
+	PlayerController->bShowMouseCursor = true;
+	PlayerController->FlushPressedKeys();
 }

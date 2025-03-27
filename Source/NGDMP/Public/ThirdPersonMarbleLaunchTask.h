@@ -53,4 +53,8 @@ private:
 	UFUNCTION()
 	void CancelLaunch(bool bEscapeReleased);
 
+	UFUNCTION()
+	void PauseCancelLaunchWrapper(bool bIsPaused);
+
+	virtual void SetupMousecaptureAndFocus(bool bIsPaused) override;
 };

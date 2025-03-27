@@ -46,4 +46,6 @@ private:
 	UFUNCTION()
 	void UseAbility(bool bPressed);
 	
+	UFUNCTION()
+	void SetupMousecaptureAndFocus(bool bIsPaused);
 };

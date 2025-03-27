@@ -53,4 +53,7 @@ private:
 	
 	UFUNCTION()
 	void ToThirdPersonMarbleCenteredTask(bool bInspect);
+	
+	UFUNCTION()
+	void SetupMousecaptureAndFocus(bool bIsPaused);
 };

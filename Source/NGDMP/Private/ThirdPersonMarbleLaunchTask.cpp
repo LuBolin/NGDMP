@@ -8,6 +8,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "FirstPersonMarbleCenteredTask.h"
+#include "MyGameModeBase.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
 
@@ -20,8 +21,9 @@ EStateTreeRunStatus UThirdPersonMarbleLaunchTask::EnterState(FStateTreeExecution
 	PlayerController->FIA_MainAction.AddDynamic(this, &UThirdPersonMarbleLaunchTask::TryLaunch);
 	PlayerController->FIA_Escape.AddDynamic(this, &UThirdPersonMarbleLaunchTask::CancelLaunch);
 	
-	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
-	PlayerController->bShowMouseCursor = true;
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.AddDynamic(this, &UThirdPersonMarbleLaunchTask::PauseCancelLaunchWrapper);
+	SetupMousecaptureAndFocus(false);
 	
 	CameraOffset = PlayerController->GetPawn()->GetActorLocation()
 		- PlayerController->PossessedMarble->GetActorLocation();
@@ -39,8 +41,9 @@ void UThirdPersonMarbleLaunchTask::ExitState(FStateTreeExecutionContext& Context
 	PlayerController->FIA_Move.RemoveDynamic(this, &UThirdPersonMarbleLaunchTask::CameraMovement);
 	PlayerController->FIA_MainAction.RemoveDynamic(this, &UThirdPersonMarbleLaunchTask::TryLaunch);
 	PlayerController->FIA_Escape.RemoveDynamic(this, &UThirdPersonMarbleLaunchTask::CancelLaunch);
-	
-	PlayerController->bShowMouseCursor = false;
+
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.RemoveDynamic(this, &UThirdPersonMarbleLaunchTask::PauseCancelLaunchWrapper);
 	
 	// ExitState of UMyStateTreeTaskBlueprintBase
 	Super::Super::ExitState(Context, Transition);
@@ -59,9 +62,6 @@ EStateTreeRunStatus UThirdPersonMarbleLaunchTask::Tick(FStateTreeExecutionContex
 void UThirdPersonMarbleLaunchTask::ComputeMouseWorldProjection()
 {
 	FVector2d CurrentMousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
-	
-	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red,
-		FString::Printf(TEXT("Mouse Pos: %f, %f"), CurrentMousePos.X, CurrentMousePos.Y));
 	
 	float DPIScale = UWidgetLayoutLibrary::GetViewportScale(GetWorld());
 	CurrentMousePos *= DPIScale;
@@ -198,4 +198,26 @@ void UThirdPersonMarbleLaunchTask::TryLaunch(bool bLaunchPressed)
 void UThirdPersonMarbleLaunchTask::CancelLaunch(bool bEscapePressed)
 {
 	PlayerController->SendStateTreeEventByTagString("Marble.ThirdPerson");
+}
+
+void UThirdPersonMarbleLaunchTask::PauseCancelLaunchWrapper(bool bIsPaused)
+{
+	if (bIsPaused)
+	{
+		CancelLaunch(true);
+	}
+}
+
+// Not tied to pause / unpause, since if we pause in launch,
+// we should exit out to ThirdPersonCenteredTask
+// still, we keep the parameter, for consistency sake
+void UThirdPersonMarbleLaunchTask::SetupMousecaptureAndFocus(bool bIsPaused)
+{
+	if (bIsPaused)
+		return;
+
+	// setting input mode updates capture immediately
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
+	PlayerController->SetInputMode(FInputModeGameOnly());
+	PlayerController->bShowMouseCursor = true;
 }

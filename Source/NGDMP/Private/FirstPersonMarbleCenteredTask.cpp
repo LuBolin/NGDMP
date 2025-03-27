@@ -3,6 +3,7 @@
 
 #include "FirstPersonMarbleCenteredTask.h"
 #include "MasterPlayerController.h"
+#include "MyGameModeBase.h"
 #include "StateTreeExecutionContext.h"
 #include "ThirdPersonMarbleCenteredTask.h"
 
@@ -20,8 +21,9 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 	PlayerController->FIA_MainAction.AddDynamic(this, &UFirstPersonMarbleCenteredTask::UseAbility);
 
 
-	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
-	PlayerController->bShowMouseCursor = false;
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.AddDynamic(this, &UFirstPersonMarbleCenteredTask::SetupMousecaptureAndFocus);
+	SetupMousecaptureAndFocus(false);
 	
 	return EStateTreeRunStatus::Running;
 }
@@ -36,6 +38,9 @@ void UFirstPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 	PlayerController->FIA_MouseLook.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::CameraPan);
 	PlayerController->FIA_Escape.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask);
 	PlayerController->FIA_MainAction.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::UseAbility);
+
+	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
+	GameMode->OnGamePause.RemoveDynamic(this, &UFirstPersonMarbleCenteredTask::SetupMousecaptureAndFocus);
 	
 	Super::ExitState(Context, Transition);
 }
@@ -116,4 +121,15 @@ void UFirstPersonMarbleCenteredTask::UseAbility(bool bPressed)
 	{
 		ToThirdPersonMarbleCenteredTask(true);
 	}, PopOutDelay, false);
+}
+
+void UFirstPersonMarbleCenteredTask::SetupMousecaptureAndFocus(bool bIsPaused)
+{
+	if (bIsPaused)
+		return;
+
+	// setting input mode updates capture immediately
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
+	PlayerController->SetInputMode(FInputModeGameOnly());
+	PlayerController->bShowMouseCursor = false;
 }

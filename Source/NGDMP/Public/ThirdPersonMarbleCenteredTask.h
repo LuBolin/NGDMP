@@ -67,4 +67,7 @@ private:
 
 	UFUNCTION()
 	void SyncAndClampCamera();
+
+	UFUNCTION() // virtual as LaunchTask will override this
+	virtual void SetupMousecaptureAndFocus(bool bIsPaused);
 };
