@@ -65,6 +65,11 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::Tick(FStateTreeExecutionCont
 // CameraPan
 void UFirstPersonMarbleCenteredTask::CameraPan(FVector2f Input)
 {
+	// multiply by delta time, then multiply by 60
+	// values were tuned at 60fps
+	float deltaTime = PlayerController->GetWorld()->GetDeltaSeconds();
+	Input *= deltaTime * 60.0f;
+	
 	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
 	USpringArmComponent* SpringArm = PossessedMarble->AnimalCameraSpringArm;
 	FRotator CurrentRotation = SpringArm->GetRelativeRotation();

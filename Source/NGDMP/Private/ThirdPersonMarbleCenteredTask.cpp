@@ -101,7 +101,12 @@ void UThirdPersonMarbleCenteredTask::CameraMovement(FVector3f Input)
 	if (RunStatus != EStateTreeRunStatus::Running)
 		return;
 	
-	// Initialize variablesC
+	// multiply by delta time, then multiply by 60
+	// values were tuned at 60fps
+	float deltaTime = PlayerController->GetWorld()->GetDeltaSeconds();
+	Input *= deltaTime * 60.0f;
+	
+	// Initialize variables
 	APawn* SpectatePawn = PlayerController->GetPawn();
 	ABaseMarble* PossessedMarble = PlayerController->PossessedMarble;
 	FVector SpectatePawnLocation = SpectatePawn->GetActorLocation();
