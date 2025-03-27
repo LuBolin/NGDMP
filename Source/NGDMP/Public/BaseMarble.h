@@ -139,6 +139,12 @@ protected:
 
 	UFUNCTION()
 	void Die();
+
+	UFUNCTION()
+	void OutOfBoundsCheck();
+
+	UPROPERTY()
+	FVector MaxBounds = FVector(1600.0f, 1600.0f, 1600.0f);
 	
 private:
 	UPROPERTY()

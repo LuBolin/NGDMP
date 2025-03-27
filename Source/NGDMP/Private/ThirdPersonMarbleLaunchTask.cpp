@@ -58,6 +58,10 @@ EStateTreeRunStatus UThirdPersonMarbleLaunchTask::Tick(FStateTreeExecutionContex
 void UThirdPersonMarbleLaunchTask::ComputeMouseWorldProjection()
 {
 	FVector2d CurrentMousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
+	
+	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red,
+		FString::Printf(TEXT("Mouse Pos: %f, %f"), CurrentMousePos.X, CurrentMousePos.Y));
+	
 	float DPIScale = UWidgetLayoutLibrary::GetViewportScale(GetWorld());
 	CurrentMousePos *= DPIScale;
 
@@ -111,7 +115,7 @@ void UThirdPersonMarbleLaunchTask::RenderControlLine()
 		FVector LineStart = MarbleBottom;
 		FVector LineEnd = MouseWorldProjection;
 		float Thickness = 4.0f;
-		FColor LineColor = FColor::Black;
+		FColor LineColor = FColor::Yellow;
 		LineBatcher->DrawLine(LineStart, LineEnd, LineColor, SDPG_Foreground, Thickness, LifeTime);
 	}
 }
@@ -132,8 +136,6 @@ void UThirdPersonMarbleLaunchTask::RenderLaunchMaxCircle()
 		+ Down * PossessedMarble->Radius;
 	
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
-	bool bPersistentLines = false;
-	bool bDepthIsForeground = (0 == SDPG_Foreground);
 	
 	ULineBatchComponent* LineBatcher = GetWorld()->LineBatcher;
 

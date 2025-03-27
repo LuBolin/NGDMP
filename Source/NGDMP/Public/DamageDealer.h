@@ -26,8 +26,11 @@ protected:
 	float CalculateDamage(FVector Velocity, FVector TargetDirn);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float DamageMultiplier = 1.2f;
+	float EnemyDamageMultiplier = 1.2f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float PlayerDamageMultiplier = 0.6f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseDamage = 30.0f;
 

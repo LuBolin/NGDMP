@@ -3,6 +3,7 @@
 
 #include "DamageDealer.h"
 
+#include "BaseEnemy.h"
 #include "BaseMarble.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -57,7 +58,10 @@ void ADamageDealer::OnPhysicsHit(UPrimitiveComponent* HitComponent, AActor* Othe
 	if (Projection > 0)
 	{
 		FVector BounceDirn = FVector::VectorPlaneProject(LastVelocity, Hit.ImpactNormal);
-		OtherMarble->Launch(BounceDirn, LastVelocity.Size(), 0.0f);
+		// do not use Launch() as it has other side effects
+		// add force to the marble
+		// OtherMarble->Launch(BounceDirn, LastVelocity.Size(), 0.0f);
+		OtherMarble->PhysicsMesh->AddImpulse(BounceDirn * LastVelocity.Size());
 	}
 }
 
@@ -71,6 +75,9 @@ float ADamageDealer::CalculateDamage(FVector Velocity, FVector TargetDirn)
 	// get velocity along the direction of the target
 	float ContributingSpeed = FVector::DotProduct(Velocity, TargetDirn);
 	float Damage = 0.5f * FMath::Pow((ContributingSpeed / 100.0), 2.0);
+
+	float DamageMultiplier = IsA<ABaseEnemy>() ? EnemyDamageMultiplier : PlayerDamageMultiplier;
+	
 	Damage *= DamageMultiplier;
 	return Damage;
 }

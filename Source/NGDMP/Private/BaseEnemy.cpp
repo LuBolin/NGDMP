@@ -28,6 +28,8 @@ void ABaseEnemy::Act()
 	ATurnBasedGameState* TurnBasedGameState = ATurnBasedGameState::GetInstance();
 	if (!TurnBasedGameState) return;
 
+	UE_LOG(LogTemp, Display, TEXT("Enemy Setting current actor to %s"), *GetName());
+	
 	TurnBasedGameState->CurrentActor = this;
 	
 	FVector LaunchDirection = FVector::ZeroVector;

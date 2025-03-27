@@ -90,6 +90,8 @@ void ABaseMarble::Tick(float DeltaTime)
 	RenderInfoGroup();
 
 	SolvePhysicsSleep();
+
+	OutOfBoundsCheck();
 }
 
 
@@ -170,6 +172,7 @@ void ABaseMarble::Launch(FVector Direction, float Velocity, float BlendDelay)
 	{
 		BlendDelay = 0.1f;
 	}
+	
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, LaunchVelocity]()
 	{
@@ -475,6 +478,17 @@ void ABaseMarble::UseAbility(bool bPressed)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AbilitySound, GetActorLocation());
 		UE_LOG(LogTemp, Warning, TEXT("%s has been used"), *GetName());
 	}
-		
 }
 
+
+void ABaseMarble::OutOfBoundsCheck()
+{
+	// if any coordinate is out of bounds, die
+	FVector Location = GetActorLocation();
+	if (abs(Location.X) > MaxBounds.X
+		or abs(Location.Y) > MaxBounds.Y
+		or abs(Location.Z) > MaxBounds.Z)
+	{
+		Die();
+	}
+}

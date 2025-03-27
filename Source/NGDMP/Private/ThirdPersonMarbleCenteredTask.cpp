@@ -53,8 +53,6 @@ void UThirdPersonMarbleCenteredTask::ExitState(FStateTreeExecutionContext& Conte
 // Tick
 EStateTreeRunStatus UThirdPersonMarbleCenteredTask::Tick(FStateTreeExecutionContext& Context, const float DeltaTime)
 {
-	//UE_LOG(LogTemp, Log, TEXT("bCenteredOnMarble: %d"), bCenteredOnMarble);
-
 	if (bCenteredOnMarble)
 		SyncAndClampCamera();
 	else

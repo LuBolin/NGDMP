@@ -31,6 +31,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USphereComponent* PickupCollider;
 	
+	UPROPERTY(EditAnywhere)
+	bool bEnemyInteractable = false;
+	
 	UPROPERTY(BlueprintReadOnly)
 	bool bCollected = false;
 

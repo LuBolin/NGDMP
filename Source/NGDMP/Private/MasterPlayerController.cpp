@@ -27,6 +27,9 @@ void AMasterPlayerController::BeginPlay()
 	StateTreeComponent->StartLogic();
 	
 	SetViewTargetWithBlend(SpectatePawn, 0.5f);
+
+	
+	SetInputMode(FInputModeGameOnly());
 }
 
 void AMasterPlayerController::SendStateTreeEventByTagString(FString TagString)
@@ -43,7 +46,7 @@ void AMasterPlayerController::ExitGame()
 
 void AMasterPlayerController::ForceFocusOnMarble(ABaseMarble* Marble)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Forcing focus on: %s"), *Marble->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("Forcing focus on: %s"), *Marble->GetName());
 	// 1 delta ~= 1 frame
 	float FrameDelay = GetWorld()->GetDeltaSeconds();
 	
@@ -68,8 +71,9 @@ void AMasterPlayerController::ForceFocusOnMarble(ABaseMarble* Marble)
 	
 	// then go to third person centered on marble
 	// but first wait for 1 frame for the previous signal to be processed
+	// update: 1 frame sometime glitches, wait for 2 extra frame instead then
 	FTimerHandle TimerHandle2;
-	float delay2 = 2 * FrameDelay; // have to wait for the previous delay too
+	float delay2 = 3 * FrameDelay; // have to wait for the previous delay too
 	auto GoToThirdPersonCentered = [this, Marble]()
 	{
 		PossessedMarble = Marble;

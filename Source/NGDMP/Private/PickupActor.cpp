@@ -56,8 +56,14 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (bCollected)
 		return;
+
+	bool bCanInteract = OtherActor->IsA<ABaseMarble>();
+	if (bEnemyInteractable)
+		bCanInteract = bCanInteract or OtherActor->IsA<ABaseEnemy>();
+	else
+		bCanInteract = bCanInteract and (not OtherActor->IsA<ABaseEnemy>());
 	
-	if (OtherActor->IsA<ABaseMarble>() and not OtherActor->IsA<ABaseEnemy>())
+	if (bCanInteract)
 	{
 		ABaseMarble* Marble = Cast<ABaseMarble>(OtherActor);
 		if (not bReuseable)
@@ -78,7 +84,7 @@ void APickupActor::OnPickupOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		if (PickupSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
-		}	
+		}
 	}
 }
 
