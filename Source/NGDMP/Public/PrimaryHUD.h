@@ -89,8 +89,8 @@ private:
 	UFUNCTION()
 	void SyncMarblesStatus();
 
-	UFUNCTION()
-	UTextBlock* CreateTextBlock(FString Data, FLinearColor Color = FLinearColor::White);
+	UFUNCTION() // Unreal default is 24
+	UTextBlock* CreateTextBlock(FString Data, FLinearColor Color = FLinearColor::White, int DesiredFontSize = 24);
 	
 	UFUNCTION()
 	void SyncObjectives();

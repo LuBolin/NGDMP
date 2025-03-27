@@ -65,12 +65,15 @@ void UPrimaryHUD::UpdateStateLabel(FString InStateName)
 	PlayerState->SetText(FText::FromString(InStateName));
 }
 
-UTextBlock* UPrimaryHUD::CreateTextBlock(FString Data, FLinearColor Color)
+UTextBlock* UPrimaryHUD::CreateTextBlock(FString Data, FLinearColor Color, int DesiredFontSize)
 {
 	UTextBlock* TextBlock = NewObject<UTextBlock>(this);
 	TextBlock->SetText(FText::FromString(Data));
 	TextBlock->SetMargin(FMargin(10.0f, 10.0f));
 	TextBlock->SetColorAndOpacity(FSlateColor(Color));
+	FSlateFontInfo FontInfo = TextBlock->GetFont();
+	FontInfo.Size = DesiredFontSize;
+	TextBlock->SetFont(FontInfo);
 	return TextBlock;
 }
 
@@ -135,16 +138,17 @@ void UPrimaryHUD::SyncObjectives()
 	AMyGameModeBase* GameMode = AMyGameModeBase::GetInstance();
 	ObjectivesGrid->ClearChildren();
 	int row = 0;
+	int objectiveFontSize = 36;
 	if (GameMode->destroyAllEnemies)
 	{
-		ObjectivesGrid->AddChildToGrid(CreateTextBlock("Destroy Enemies:", FLinearColor::Yellow), row, 0);
-		ObjectivesGrid->AddChildToGrid(CreateTextBlock(GameMode->checkDestroyAllEnemiesProgress(), FLinearColor::Yellow), row, 1);
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock("Destroy Enemies:", FLinearColor::Yellow, objectiveFontSize), row, 0);
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock(GameMode->checkDestroyAllEnemiesProgress(), FLinearColor::Yellow, objectiveFontSize), row, 1);
 		row += 1;
 	}
 	if (GameMode->collectAllStars)
 	{
-		ObjectivesGrid->AddChildToGrid(CreateTextBlock("Collect Stars:", FLinearColor::Yellow), row, 0);
-		ObjectivesGrid->AddChildToGrid(CreateTextBlock(GameMode->checkCollectAllStarsProgress(), FLinearColor::Yellow), row, 1);
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock("Collect Stars:", FLinearColor::Yellow, objectiveFontSize), row, 0);
+		ObjectivesGrid->AddChildToGrid(CreateTextBlock(GameMode->checkCollectAllStarsProgress(), FLinearColor::Yellow, objectiveFontSize), row, 1);
 		row += 1;
 	}
 }
