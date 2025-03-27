@@ -24,6 +24,7 @@ EStateTreeRunStatus UThirdPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 	PlayerController->FPossess_Updated.Broadcast(
 		PlayerController->PossessedMarble);
 
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
 	PlayerController->bShowMouseCursor = true;
 
 	CameraOffset = PlayerController->GetPawn()->GetActorLocation()

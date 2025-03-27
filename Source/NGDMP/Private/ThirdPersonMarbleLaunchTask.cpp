@@ -20,6 +20,7 @@ EStateTreeRunStatus UThirdPersonMarbleLaunchTask::EnterState(FStateTreeExecution
 	PlayerController->FIA_MainAction.AddDynamic(this, &UThirdPersonMarbleLaunchTask::TryLaunch);
 	PlayerController->FIA_Escape.AddDynamic(this, &UThirdPersonMarbleLaunchTask::CancelLaunch);
 	
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::NoCapture);
 	PlayerController->bShowMouseCursor = true;
 	
 	CameraOffset = PlayerController->GetPawn()->GetActorLocation()

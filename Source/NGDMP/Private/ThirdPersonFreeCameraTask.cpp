@@ -24,6 +24,13 @@ EStateTreeRunStatus UThirdPersonFreeCameraTask::EnterState(FStateTreeExecutionCo
 	PlayerController->PossessedMarble = nullptr;
 	PlayerController->FPossess_Updated.Broadcast(nullptr);
 
+	
+	
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
+	PlayerController->bShowMouseCursor = false;
+	// setting input mode updates capture immedately
+	PlayerController->SetInputMode(FInputModeGameOnly());
+	
 	return EStateTreeRunStatus::Running;
 }
 

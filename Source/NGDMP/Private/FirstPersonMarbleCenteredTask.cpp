@@ -18,6 +18,10 @@ EStateTreeRunStatus UFirstPersonMarbleCenteredTask::EnterState(FStateTreeExecuti
 	PlayerController->FIA_MouseLook.AddDynamic(this, &UFirstPersonMarbleCenteredTask::CameraPan);
 	PlayerController->FIA_Escape.AddDynamic(this, &UFirstPersonMarbleCenteredTask::ToThirdPersonMarbleCenteredTask);
 	PlayerController->FIA_MainAction.AddDynamic(this, &UFirstPersonMarbleCenteredTask::UseAbility);
+
+
+	GEngine->GameViewport->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
+	PlayerController->bShowMouseCursor = false;
 	
 	return EStateTreeRunStatus::Running;
 }

@@ -27,9 +27,6 @@ void AMasterPlayerController::BeginPlay()
 	StateTreeComponent->StartLogic();
 	
 	SetViewTargetWithBlend(SpectatePawn, 0.5f);
-
-	
-	SetInputMode(FInputModeGameOnly());
 }
 
 void AMasterPlayerController::SendStateTreeEventByTagString(FString TagString)
